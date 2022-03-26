@@ -1,0 +1,4 @@
+Brief Description for Project Sources
+-------------------------------------
+
+test001.cpp      - Проверка универсального чтения JSON/YAML в nlohmann::json.

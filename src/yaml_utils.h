@@ -64,15 +64,20 @@ DetectedValueType detectValueType( const std::string &str )
 
     int counters[idxTotal] = { 0 };
 
+    auto isDecDigit = [](char ch) -> bool
+    {
+        return ch>='0' && ch<='9';
+    };
+
     for( char ch : lowerStr)
     {
         switch(ch)
         {
-            case '0': case '1': case '2': case '3': case '4':
-            case '5': case '6': case '7': case '8': case '9':
-                counters[idxDigit]++;
-                break;
-
+            // case '0': case '1': case '2': case '3': case '4':
+            // case '5': case '6': case '7': case '8': case '9':
+            //     counters[idxDigit]++;
+            //     break;
+            //  
             case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
                 counters[idxDigitX]++;
                 break;
@@ -99,7 +104,10 @@ DetectedValueType detectValueType( const std::string &str )
                 break;
 
             default:
-                counters[idxOthers]++;
+                if (isDecDigit(ch))
+                   counters[idxDigit]++;
+                else
+                   counters[idxOthers]++;
                 break;
         }
     
@@ -114,16 +122,43 @@ DetectedValueType detectValueType( const std::string &str )
     int allDigits = decDigits + hexDigits;
     int allSigns  = counters[idxPlus]+counters[idxMinus];
 
-    // знаков и точек не должно быть больше 1, нет hex цифр и нет hex-маркера и хоть одна десятичная цифра
-    if (allSigns<2 && counters[idxDot]<2 && counters[idxX]==0 && hexDigits==0 && decDigits>0)
-        return DetectedValueType::number;
 
+    //auto removeLeadingPlus()
+
+    // знаков и точек не должно быть больше 1, нет hex цифр и нет hex-маркера и хоть одна десятичная цифра
+    // Плюсик - недопустим в нормальном JSON
+    if ( /* allSigns */counters[idxMinus] <2 && counters[idxDot]<2 && counters[idxX]==0 && hexDigits==0 && decDigits>0)
+    {
+        auto pos = 0u;
+        while(pos!=str.size() && !isDecDigit(str[pos])) ++pos; // пропускаем все нецифровые символы
+        auto lzCounter = 0u;
+        while(pos!=str.size() && str[pos]=='0') { ++pos; ++lzCounter; } // считаем ведущие нолики
+        auto tailLen = str.size()-pos;
+        if (tailLen==0 && lzCounter>0)
+            return DetectedValueType::number;
+        if (tailLen>0 && lzCounter==0)
+            return DetectedValueType::number;
+    }
+
+    // hex - недопустим в нормальном JSON
+    /*
     // hex - без знака, без точек, хотя бы одна цифра, только один 'x', размер>2 и префикс==0x
     if (allSigns==0 && counters[idxDot]==0 && allDigits>0 && counters[idxX]==1 && str.size()>2 && lowerStr[0]=='0' && lowerStr[1]=='x')
         return DetectedValueType::number;
+    */
 
-    if ((counters[idxPlus]+counters[idxMinus])<2 && counters[idxDot]==0 && counters[idxDigitX]==0 && counters[idxDigit]>0)
-        return DetectedValueType::number;
+    if (( /* counters[idxPlus]+ */ counters[idxMinus])<2 && counters[idxDot]==0 && counters[idxDigitX]==0 && counters[idxDigit]>0)
+    {
+        auto pos = 0u;
+        while(pos!=str.size() && !isDecDigit(str[pos])) ++pos; // пропускаем все нецифровые символы
+        auto lzCounter = 0u;
+        while(pos!=str.size() && str[pos]=='0') { ++pos; ++lzCounter; } // считаем ведущие нолики
+        auto tailLen = str.size()-pos;
+        if (tailLen==0 && lzCounter>0)
+            return DetectedValueType::number;
+        if (tailLen>0 && lzCounter==0)
+            return DetectedValueType::number;
+    }
 
     return DetectedValueType::string;
 }
