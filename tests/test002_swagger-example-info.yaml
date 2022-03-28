@@ -1,0 +1,8 @@
+openapi: 3.0.0
+info:
+  description: tinkoff.ru/invest OpenAPI.
+  version: 1.0.0
+  title: OpenAPI
+  termsOfService: "#"
+  contact:
+    email: n.v.melnikov@tinkoff.ru

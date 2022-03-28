@@ -46,6 +46,7 @@ nlohmann::json parseJsonOrYaml( const std::string &data, bool allowComments = tr
 
         marty::yaml2json::FastSimpleStringStream fssm;
         marty::yaml2json::writeJson(fssm, yamlNode, -1);
+        //marty::yaml2json::writeJson(fssm, yamlNode, 2);
 
         if (pTmpJson)
            *pTmpJson = fssm.str();
