@@ -521,33 +521,136 @@ void from_json( const nlohmann::json& jNode, PathItemObject& o)
 
 
 //----------------------------------------------------------------------------
-#if 0
-// https://spec.openapis.org/oas/v3.1.0#paths-object
-struct PathsObject
+// https://spec.openapis.org/oas/v3.1.0#discriminator-object
+struct DiscriminatorObject
 {
-    Opt< std::string    >                              url          ; // REQUIRED
-    Opt< std::string    >                              description  ;
-    Opt< std::map<std::string, ServerVariableObject> > variables    ;
+    Opt< std::string >                                 propertyName ;
+    Opt< std::map<std::string,std::string> >           mapping      ;
 
-}; // struct PathsObject
+}; // struct DiscriminatorObject
 
 //------------------------------
 inline
-void to_json( nlohmann::json& jNode, const PathsObject& o)
+void to_json( nlohmann::json& jNode, const DiscriminatorObject& o)
 {
-    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, url         );
-    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description );
-    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, variables   );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, propertyName );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, mapping      );
 }
 
 inline
-void from_json( const nlohmann::json& jNode, PathsObject& o)
+void from_json( const nlohmann::json& jNode, DiscriminatorObject& o)
 {
-    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, url         );
-    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description );
-    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, variables   );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, propertyName );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, mapping      );
 }
-#endif
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+// https://spec.openapis.org/oas/v3.1.0#xml-object
+struct XmlObject
+{
+    Opt< std::string >                                 name         ;
+    Opt< std::string >                                 _namespace   ;
+    Opt< std::string >                                 prefix       ;
+    Opt< std::string >                                 attribute    ;
+    Opt< std::string >                                 wrapped      ;
+
+}; // struct XmlObject
+
+//------------------------------
+inline
+void to_json( nlohmann::json& jNode, const XmlObject& o)
+{
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, name         );
+    util::convertToJsonFrom(jNode, "namespace"  , o._namespace    );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, prefix       );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, attribute    );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, wrapped      );
+}
+
+inline
+void from_json( const nlohmann::json& jNode, XmlObject& o)
+{
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, name         );
+    util::extractFromJsonTo(jNode, "namespace"    , o._namespace    );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, prefix       );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, attribute    );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, wrapped      );
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+// https://spec.openapis.org/oas/v3.1.0#schema-object
+struct SchemaObject
+{
+    Opt< DiscriminatorObject >                         discriminator;
+    Opt< XmlObject >                                   xml          ;
+    Opt< ExternalDocumentationObject >                 externalDocs ;
+    // Opt< std::string >                                 example      ; // В новых доках - examples, Type: Any - хз как парсить, да оно и не надо
+
+}; // struct SchemaObject
+
+//------------------------------
+inline
+void to_json( nlohmann::json& jNode, const SchemaObject& o)
+{
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, discriminator );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, xml           );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, externalDocs  );
+    // MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, example       );
+}
+
+inline
+void from_json( const nlohmann::json& jNode, SchemaObject& o)
+{
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, discriminator );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, xml           );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, externalDocs  );
+    // MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, example       );
+    // if (!o.examples) // элемента 'examples' нет, возможно, что есть 'example'
+    // {
+    //     if (jNode.contains("example"))
+    //         util::extractFromJsonTo( jNode, "example", o.examples );
+    // }
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+// https://spec.openapis.org/oas/v3.1.0#components-object
+struct ComponentsObject
+{
+    Opt< std::map<std::string, SchemaObject> >         schemas      ;
+
+
+    // Opt< std::string    >                              url          ;
+
+}; // struct ComponentsObject
+
+//------------------------------
+inline
+void to_json( nlohmann::json& jNode, const ComponentsObject& o)
+{
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, schemas     );
+}
+
+inline
+void from_json( const nlohmann::json& jNode, ComponentsObject& o)
+{
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, schemas     );
+}
+
 //----------------------------------------------------------------------------
 
 
