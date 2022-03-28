@@ -1,0 +1,144 @@
+https://spec.openapis.org/oas/v3.1.0#data-types
+
+type       format      Comments
+integer    int32       signed 32 bits
+integer    int64       signed 64 bits (a.k.a long)
+number     float       
+number     double      
+string     password    A hint to UIs to obscure input.
+
+
+https://spec.openapis.org/
+    https://github.com/OAI/OpenAPI-Specification
+
+
+
+https://spec.openapis.org/oas/3.1/dialect/base
+{
+    "$id": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+
+    "title": "OpenAPI 3.1 Schema Object Dialect",
+    "description": "A JSON Schema dialect describing schemas found in OpenAPI documents",
+
+    "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+        "https://json-schema.org/draft/2020-12/vocab/content": true,
+        "https://spec.openapis.org/oas/3.1/vocab/base": false
+    },
+
+    "$dynamicAnchor": "meta",
+
+    "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/schema" },
+        { "$ref": "https://spec.openapis.org/oas/3.1/meta/base" }
+    ]
+}
+
+
+https://json-schema.org/draft/2020-12/vocab/core
+    https://json-schema.org/draft/2020-12/json-schema-core.html#rfc.section.8
+https://json-schema.org/draft/2020-12/vocab/applicator
+    https://json-schema.org/draft/2020-12/json-schema-core.html#rfc.section.10
+https://json-schema.org/draft/2020-12/vocab/unevaluated
+    https://json-schema.org/draft/2020-12/json-schema-core.html#rfc.section.11
+https://json-schema.org/draft/2020-12/vocab/validation
+    https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.6
+https://json-schema.org/draft/2020-12/vocab/meta-data
+    https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.9
+https://json-schema.org/draft/2020-12/vocab/format-annotation
+    https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.7
+https://json-schema.org/draft/2020-12/vocab/content
+    https://json-schema.org/draft/2020-12/json-schema-validation.html#rfc.section.8
+
+
+
+https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-4.3.3
+
+7.6.1.  Assertions and Instance Primitive Types
+{
+    "type": ["string", "null"],
+    "maxLength": 255
+}
+
+
+7.7.1.1.  Distinguishing Among Multiple Values
+   {
+       "title": "Feature list",
+       "type": "array",
+       "prefixItems": [
+           {
+               "title": "Feature A",
+               "properties": {
+                   "enabled": {
+                       "$ref": "#/$defs/enabledToggle",
+                       "default": true
+                   }
+               }
+           },
+           {
+               "title": "Feature B",
+               "properties": {
+                   "enabled": {
+                       "description": "If set to null, Feature B
+                                       inherits the enabled
+                                       value from Feature A",
+                       "$ref": "#/$defs/enabledToggle"
+                   }
+               }
+           }
+       ],
+       "$defs": {
+           "enabledToggle": {
+               "title": "Enabled",
+               "description": "Whether the feature is enabled (true),
+                               disabled (false), or under
+                               automatic control (null)",
+               "type": ["boolean", "null"],
+               "default": null
+           }
+       }
+   }
+
+
+7.7.1.2.  Annotations and Assertions
+   {
+       "oneOf": [
+           {
+               "title": "Integer Value",
+               "type": "integer"
+           },
+           {
+               "title": "String Value",
+               "type": "string"
+           }
+       ]
+   }
+
+
+12.4.  Output Structure
+   {
+     "$id": "https://example.com/polygon",
+     "$schema": "https://json-schema.org/draft/2020-12/schema",
+     "$defs": {
+       "point": {
+         "type": "object",
+         "properties": {
+           "x": { "type": "number" },
+           "y": { "type": "number" }
+         },
+         "additionalProperties": false,
+         "required": [ "x", "y" ]
+       }
+     },
+     "type": "array",
+     "items": { "$ref": "#/$defs/point" },
+     "minItems": 3
+   }
+
+
