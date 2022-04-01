@@ -18,35 +18,72 @@ namespace marty{
 namespace json_utils{
 
 
+enum class FileFormat
+{
+    unknown = 0,
+    json,
+    yaml
+};
+
 // 
-nlohmann::json parseJsonOrYaml( const std::string &data, bool allowComments = true, std::string *pErrMsg = 0, std::string *pTmpJson = 0 )
+nlohmann::json parseJsonOrYaml( const std::string &data
+                              , bool allowComments = true
+                              , std::string *pErrMsg = 0
+                              , std::string *pTmpJson = 0
+                              , FileFormat *pDetectedFormat = 0
+                              )
 {
     nlohmann::json jRes;
 
-    try
+    FileFormat detectedFormat = FileFormat::unknown;
+
+    if (pDetectedFormat)
+        *pDetectedFormat = detectedFormat;
+
+    bool jsonStartFound = false;
+    std::string::size_type pos = 0;
+    for(; pos!=data.size(); ++pos)
     {
-        jRes = nlohmann::json::parse( data
-                                    , nullptr        // parser_callback_t
-                                    , true           // allow_exceptions
-                                    , allowComments  // ignore_comments
-                                    );
-    }
-    catch(const std::exception &e)
-    {
-        if (pErrMsg)
-           *pErrMsg = e.what();
+        if (data[pos]==' ')
+            continue;
+
+        if (data[pos]=='{')
+            jsonStartFound = true;
+            
+        break;
     }
 
-    if (!jRes.is_null())
+    if (jsonStartFound)
+    {
+        try
+        {
+            jRes = nlohmann::json::parse( data
+                                        , nullptr        // parser_callback_t
+                                        , true           // allow_exceptions
+                                        , allowComments  // ignore_comments
+                                        );
+            detectedFormat = FileFormat::json;
+        }
+        catch(const std::exception &e)
+        {
+            if (pErrMsg)
+               *pErrMsg = e.what();
+        }
+    
+        if (pDetectedFormat)
+            *pDetectedFormat = detectedFormat;
         return jRes;
+    }
+
+
 
     try
     {
         YAML::Node yamlNode = YAML::Load(data);
 
         marty::yaml2json::FastSimpleStringStream fssm;
-        marty::yaml2json::writeJson(fssm, yamlNode, -1);
-        //marty::yaml2json::writeJson(fssm, yamlNode, 2);
+        //marty::yaml2json::writeJson(fssm, yamlNode, -1);
+        marty::yaml2json::writeJson(fssm, yamlNode, 2);
 
         if (pTmpJson)
            *pTmpJson = fssm.str();
@@ -56,6 +93,9 @@ nlohmann::json parseJsonOrYaml( const std::string &data, bool allowComments = tr
                                     , true           // allow_exceptions
                                     , allowComments  // ignore_comments
                                     );
+        if (pDetectedFormat)
+            *pDetectedFormat = FileFormat::yaml;
+
 
     }
     catch (const YAML::Exception& e)
@@ -83,7 +123,12 @@ nlohmann::json parseJsonOrYaml( const std::string &data, bool allowComments = tr
 // iterator_input_adapter
 
 
-nlohmann::json parseJsonOrYaml( std::istream &in, bool allowComments = true, std::string *pErrMsg = 0, std::string *pTmpJson = 0 )
+nlohmann::json parseJsonOrYaml( std::istream &in
+                              , bool allowComments = true
+                              , std::string *pErrMsg = 0
+                              , std::string *pTmpJson = 0
+                              , FileFormat *pDetectedFormat = 0
+                              )
 {
     std::string data;
     char buffer[4096];
@@ -91,7 +136,7 @@ nlohmann::json parseJsonOrYaml( std::istream &in, bool allowComments = true, std
         data.append(buffer, sizeof(buffer));
     data.append(buffer, in.gcount());
     
-    return parseJsonOrYaml( data, allowComments, pErrMsg, pTmpJson );
+    return parseJsonOrYaml( data, allowComments, pErrMsg, pTmpJson, pDetectedFormat );
 
 #if 0
     nlohmann::json jRes;
@@ -107,66 +152,145 @@ nlohmann::json parseJsonOrYaml( std::istream &in, bool allowComments = true, std
                                     , allowComments  // ignore_comments
                                     );
     }
-    catch(const std::exception &e)
-    {
-        if (pErrMsg)
-           *pErrMsg = e.what();
-    }
-
-    if (!jRes.is_null())
-        return jRes;
-
-    try
-    {
-        YAML::Node yamlNode = YAML::Load(in);
-        auto nodeType = yamlNode.Type();
-        if (nodeType==YAML::NodeType::value::Undefined || nodeType==YAML::NodeType::value::Null)
-            return jRes;
-
-        marty::yaml2json::FastSimpleStringStream fssm;
-        marty::yaml2json::writeJson(fssm, yamlNode, -1);
-        
-        if (pTmpJson)
-           *pTmpJson = fssm.str();
-
-        jRes = nlohmann::json::parse( fssm.str()
-                                    , nullptr        // parser_callback_t
-                                    , true           // allow_exceptions
-                                    , allowComments  // ignore_comments
-                                    );
-
-    }
-    catch (const YAML::Exception& e)
-    {
-        if (pErrMsg)
-           *pErrMsg = e.what();
-    }
-    catch (const std::exception& e)
-    {
-        if (pErrMsg)
-           *pErrMsg = e.what();
-    }
-    catch (...)
-    {
-        if (pErrMsg)
-           *pErrMsg = "unknown error";
-    }
-
-    return jRes;
 #endif    
 }
 
 
-/*
-    static basic_json parse(IteratorType first,
-                            IteratorType last,
-                            const parser_callback_t cb = nullptr,
-                            const bool allow_exceptions = true,
-                            const bool ignore_comments = false)
 
-*/
+inline
+std::string makeIndentStr( int indent )
+{
+    if (indent>=0)
+        return std::string( (std::string::size_type)indent, ' ' );
 
-// auto j4 = json::parse(R"({"happy": true, "pi": 3.141})");
+    //return std::string(" ");
+    return std::string();
+}
+
+inline
+bool isScalar( nlohmann::json &j )
+{
+    if (j.is_null() || j.is_boolean() || j.is_number() || j.is_string())
+        return true;
+    return false;
+}
+
+template<typename StreamType> inline
+bool writeScalar( StreamType &s, nlohmann::json &j )
+{
+    if (j.is_null())
+    {
+        s << "null";
+    }
+    else if (j.is_boolean())
+    {
+        auto val = j.get<bool>();
+        s << (val?"true":"false");
+    }
+    else if (j.is_number_integer() && j.is_number_unsigned())
+    {
+        auto val = j.get<std::uint64_t>();
+        s << val;
+    }
+    else if (j.is_number_integer())
+    {
+        auto val = j.get<std::int64_t>();
+        s << val;
+    }
+    else if (j.is_number_float())
+    {
+        auto val = j.get<double>();
+        s << val;
+    }
+    else if (j.is_string())
+    {
+        auto val = j.get<std::string>();
+        if (val.empty() || val=="null")
+            s << '\'' << val << '\'';
+        else
+            s << val;
+    }
+    else // j.is_object() || j.is_array()
+    {
+        return false;;
+    }
+
+    return true;
+}
+
+
+template<typename StreamType>
+void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
+                  , int indent, int indentInc, bool noFirstIndent = false
+                  ) 
+{
+    if (indent<0)
+        indent = 0;
+
+    if (indentInc<1)
+        indentInc = 1;
+
+    if (writeScalar( s, j ))
+    {
+        return;
+    }
+    else if (j.is_object())
+    {
+        bool bFirst = true;
+        for (nlohmann::json::iterator it = j.begin(); it != j.end(); ++it)
+        {
+            if (!(bFirst && noFirstIndent))
+            {
+                s << makeIndentStr(indent);
+            }
+
+            s << it.key() << ":";
+            auto val = it.value();
+            if (isScalar(val))
+            {
+                s << " "; 
+                writeScalar(s,val);
+                s << "\n";
+            }
+            else
+            {
+                s << "\n";
+                writeNodeImpl( s, val, indent+indentInc, indentInc );
+            }
+
+            bFirst = false;
+        }
+
+    }
+    else if (j.is_array())
+    {
+        bool bFirst = true;
+        for (nlohmann::json::iterator it = j.begin(); it != j.end(); ++it)
+        {
+            s << makeIndentStr(indent) << "- ";
+            if (isScalar(*it))
+            {
+                writeScalar(s,*it);
+                s << "\n";
+            }
+            else
+            {
+                writeNodeImpl( s, *it, indent+indentInc, indentInc, true /* noFirstIndent */  );
+            }
+
+            bFirst = false;
+        }
+    }
+
+}
+
+
+template<typename StreamType> inline
+void writeYaml( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
+              )
+{
+    writeNodeImpl( s, j, 0, 2, false );
+}
 
 
 

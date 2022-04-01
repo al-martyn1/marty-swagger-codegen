@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <sstream>
 
 
 // marty::yaml2json::
@@ -125,19 +126,37 @@ DetectedValueType detectValueType( const std::string &str )
 
     //auto removeLeadingPlus()
 
+    // Плюсик - недопустим в нормальном JSON (в числах)
+    if (counters[idxPlus]>0)
+        return DetectedValueType::string;
+
+
     // знаков и точек не должно быть больше 1, нет hex цифр и нет hex-маркера и хоть одна десятичная цифра
-    // Плюсик - недопустим в нормальном JSON
     if ( /* allSigns */counters[idxMinus] <2 && counters[idxDot]<2 && counters[idxX]==0 && hexDigits==0 && decDigits>0)
     {
+        if (counters[idxDot]>0) 
+        {
+            if (str[0]=='.' || str[str.size()-1]=='.') // с точки числа не должны начинаться, и заканчиваться тоже не должны
+                return DetectedValueType::string;
+        }
+
         auto pos = 0u;
         while(pos!=str.size() && !isDecDigit(str[pos])) ++pos; // пропускаем все нецифровые символы
         auto lzCounter = 0u;
         while(pos!=str.size() && str[pos]=='0') { ++pos; ++lzCounter; } // считаем ведущие нолики
         auto tailLen = str.size()-pos;
-        if (tailLen==0 && lzCounter>0)
+
+        if (tailLen==0 && lzCounter==1)
             return DetectedValueType::number;
-        if (tailLen>0 && lzCounter==0)
-            return DetectedValueType::number;
+
+        if (tailLen>0) // в хвосте остались какие-то цифры и/или другие знаки
+        {
+            const int allowedLeadingZeros = counters[idxDot]>0 ? 1 : 0; // Если есть точка, то разрешен один ведущий ноль, иначе - ни одного
+            if (lzCounter<=allowedLeadingZeros)
+               return DetectedValueType::number;
+        }
+
+        return DetectedValueType::string; 
     }
 
     // hex - недопустим в нормальном JSON
@@ -158,6 +177,8 @@ DetectedValueType detectValueType( const std::string &str )
             return DetectedValueType::number;
         if (tailLen>0 && lzCounter==0)
             return DetectedValueType::number;
+
+        return DetectedValueType::string;
     }
 
     return DetectedValueType::string;
@@ -199,6 +220,53 @@ public:
         m_str.append(str);
         return *this;
     }
+
+    FastSimpleStringStream& operator<<( bool b )
+    {
+        m_str.append(b ? "true" : "false");
+        return *this;
+    }
+
+    template<typename PrimType>
+    FastSimpleStringStream& inserterImpl( PrimType t )
+    {
+        std::ostringstream os;
+        os<<t;
+        m_str.append(os.str());
+        return *this;
+    }
+
+    FastSimpleStringStream& operator<<( double d )
+    {
+        return inserterImpl(d);
+    }
+
+    FastSimpleStringStream& operator<<( float f )
+    {
+        return inserterImpl(f);
+    }
+
+    FastSimpleStringStream& operator<<( std::int32_t i )
+    {
+        return inserterImpl(i);
+    }
+
+    FastSimpleStringStream& operator<<( std::uint32_t u )
+    {
+        return inserterImpl(u);
+    }
+
+    FastSimpleStringStream& operator<<( std::int64_t i )
+    {
+        return inserterImpl(i);
+    }
+
+    FastSimpleStringStream& operator<<( std::uint64_t u )
+    {
+        return inserterImpl(u);
+    }
+
+
 
 };
 

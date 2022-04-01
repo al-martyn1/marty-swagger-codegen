@@ -1,5 +1,5 @@
 /*! \file
-    \brief [ ]
+    \brief Проверка десериализации спеки в формате OpenAPI в C++ структуры и обратной сериализации
 */
 
 #include <iostream>
@@ -27,11 +27,9 @@
 #include "marty_swagger.h"
 
  
-using namespace std;
 
 
-
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -51,41 +49,37 @@ int main( int argc, char* argv[] )
 
     std::string errMsg;
     std::string tmpJson;
-    nlohmann::json j = marty::json_utils::parseJsonOrYaml( in, true /* allowComments */ , &errMsg, &tmpJson );
+    marty::json_utils::FileFormat detectedFormat = marty::json_utils::FileFormat::unknown;
+    nlohmann::json j = marty::json_utils::parseJsonOrYaml( in, true /* allowComments */ , &errMsg, &tmpJson, &detectedFormat );
 
-    if (j.is_null() && !errMsg.empty())
+    if (detectedFormat==marty::json_utils::FileFormat::unknown)
     {
         std::cerr << testInputFileName << ": error: " << errMsg << std::endl;
         if (!tmpJson.empty())
         {
-            //std::cerr << "JSON:" << std::endl;
-            //std::cerr << tmpJson << std::endl;
+            std::cerr << "JSON:" << std::endl;
+            std::cerr << tmpJson << std::endl;
         }
         
         return 1;
-    }
-
-    //lout << width(2) << j;
-
-    if (!tmpJson.empty())
-    {
-        //std::cerr << "JSON:" << std::endl;
-        //std::cerr << tmpJson << std::endl;
     }
 
 
     try
     {
         auto apiSpec = j.get<marty::swagger::OpenApiSpecObject>();
-        lout << "Data extracted" << endl;
+        //lout << "Data extracted" << endl;
+        nlohmann::json jSpec = apiSpec;
+        lout << width(4) << jSpec;
+
     }
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
         std::cerr << "JSON:" << std::endl;
-        //std::cerr << std::setw(2) << tmpJson << std::endl;
         std::cerr << tmpJson << std::endl;
     }
+
 
 
     return 0;

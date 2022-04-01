@@ -15,3 +15,13 @@ OpenAPI - Getting started - https://oai.github.io/Documentation/start-here.html
 OpenAPI - Specification   - https://spec.openapis.org/oas/v3.1.0
 
 
+http://rsdn.org/forum/web/8244758.1
+
+JSON Schema - Getting Started Step-By-Step - http://json-schema.org/learn/getting-started-step-by-step.html
+Properties - https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-00#section-10.3.2.1
+Required   - https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-6.5.3
+Type       - https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-6.1.1
+Default    - https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-validation-00#section-9.2
+
+
+Куча всяких OpenAPI - https://github.com/APIs-guru/openapi-directory/tree/main/APIs

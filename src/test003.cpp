@@ -1,5 +1,5 @@
 /*! \file
-    \brief Проверка универсального чтения JSON/YAML в nlohmann::json
+    \brief Делаем Diff между входной OpenAPI спекой, и тем, что (де)сериализовалось в C++ структуры
 */
 
 #include <iostream>
@@ -24,23 +24,22 @@
 
 #include "test_utils.h"
 
-#include "json_utils.h"
+#include "marty_swagger.h"
 
  
-using namespace std;
 
 
-//#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
+
 
 int main( int argc, char* argv[] )
 {
     using umba::lout;
     using namespace umba::omanip;
 
-
     #ifdef USE_EXACT_TEST
     
-        INIT_TEST_INPUT_FILE_EX("006");
+        INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
     
     #else
     
@@ -51,7 +50,6 @@ int main( int argc, char* argv[] )
     std::string errMsg;
     std::string tmpJson;
     marty::json_utils::FileFormat detectedFormat = marty::json_utils::FileFormat::unknown;
-    //nlohmann::json j = marty::json_utils::parseJsonOrYaml( "null" );
     nlohmann::json j = marty::json_utils::parseJsonOrYaml( in, true /* allowComments */ , &errMsg, &tmpJson, &detectedFormat );
 
     if (detectedFormat==marty::json_utils::FileFormat::unknown)
@@ -66,18 +64,31 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
-    lout << width(2) << j;
-
-    /*
-    if (!tmpJson.empty())
+    try
     {
+        auto apiSpec = j.get<marty::swagger::OpenApiSpecObject>();
+        //lout << "Data extracted" << endl;
+
+        nlohmann::json jNew = apiSpec;
+
+        auto jDiff = nlohmann::json::diff( j, jNew );
+
+
+        lout << width(2) << jDiff;
+
+    }
+    catch(const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
         std::cerr << "JSON:" << std::endl;
         std::cerr << tmpJson << std::endl;
     }
-    */
+
+
 
     return 0;
 }
 
+// #include "src/gtest_main.cc"
 
 
