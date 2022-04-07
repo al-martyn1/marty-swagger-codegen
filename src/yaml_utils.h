@@ -130,6 +130,9 @@ DetectedValueType detectValueType( const std::string &str )
     if (counters[idxPlus]>0)
         return DetectedValueType::string;
 
+    // Есть минус, но не в начале - это не число, может, дата: 2016-09
+    if (counters[idxMinus]==1 && str[0]!='-')
+        return DetectedValueType::string;
 
     // знаков и точек не должно быть больше 1, нет hex цифр и нет hex-маркера и хоть одна десятичная цифра
     if ( /* allSigns */counters[idxMinus] <2 && counters[idxDot]<2 && counters[idxX]==0 && hexDigits==0 && decDigits>0)
@@ -367,6 +370,11 @@ std::string makeQuoted( const std::string & str, bool forceQuoted = false )
 {
     if (!forceQuoted)
     {
+        if (str=="null" || str=="false" || str=="true")
+        {
+            return str;
+        }
+
         auto detectedValueType = detectValueType( str );
         if (detectedValueType==DetectedValueType::string)
             forceQuoted = true;
@@ -380,6 +388,67 @@ std::string makeQuoted( const std::string & str, bool forceQuoted = false )
     res.append(makeEscapedString(str));
     res.append(1,'\"');
     return res;
+}
+
+
+/*
+    Tag() can be one of:
+    ?
+    !
+
+openapi: 3.0.0
+float_val: 4.0
+like_float: '5.0'
+int_val: -6
+like_int: '-7'
+info:
+  version: 1.0.0
+  termsOfService: "#"
+
+
+Found tags:
+!
+    #
+    -7     // like_int
+    200
+    5.0    // like_float
+    500
+?
+    -6     // int_val
+    1.0.0
+    3.0.0
+    4.0    // float_val
+
+
+! - строки
+? - вероятно, числа, но не факт
+
+*/
+
+inline
+std::string makeQuoted( const std::string & str, const std::string &tag )
+{
+    // if (tag=="!") // Это точно строка
+    //     return makeQuoted(str, true); // force make quoted
+
+    if (str=="null" || str=="false" || str=="true") // Это литералы
+    {
+        return str;
+    }
+
+    if (tag=="?") // Это вероятно число
+        return makeQuoted(str, false); // Отсеиваем '3.0.0', '+100500' и тп
+
+    return makeQuoted(str, true); // force make quoted
+}
+
+inline
+std::string makeQuoted( const std::string & str, const char* tag )
+{
+    if (tag)
+        return makeQuoted(str, std::string(tag));
+    else
+        return makeQuoted(str);
 }
 
 
@@ -432,7 +501,7 @@ void printScalar( StreamType &s, int indent, const YAML::Node &n, bool isFirst, 
     if (n.Type()==YAML::NodeType::value::Scalar)
     {
         std::string scalarValue = n.as<std::string>();
-        value = makeQuoted(scalarValue);
+        value = makeQuoted(scalarValue, n.Tag());
     }
 
     s << makeIndentStr(indent);
@@ -471,7 +540,8 @@ void writeJsonImpl( StreamType &s, const YAML::Node &node, int indentIncrement, 
         case YAML::NodeType::value::Scalar   :
              {
                  std::string value  = node.as<std::string>();
-                 s << makeIndentStr(indent) << makeQuoted(value) << makeJsonLf(indent);
+                 s << makeIndentStr(indent) << makeQuoted(value,node.Tag()) << makeJsonLf(indent);
+                 // printScalar(s, indent, false, false);
              }
              return;
 

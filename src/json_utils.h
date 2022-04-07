@@ -12,12 +12,120 @@
 #include "simple_formatter_json_inserter.h"
 
 
+
 // marty::json_utils::
 
 namespace marty{
 namespace json_utils{
 
+//----------------------------------------------------------------------------
 
+
+
+
+//----------------------------------------------------------------------------
+enum class JsonNodeType
+{
+    unknown        ,
+
+    // scalar node types
+    null           ,
+    boolean        ,
+    numberUnsigned ,
+    numberInteger  ,
+    numberFloat    ,
+    string         ,
+
+    array          ,
+
+    object
+
+}; // enum class JsonNodeType
+
+//------------------------------
+inline
+JsonNodeType nodeType(const nlohmann::json &jNode)
+{
+    if (jNode.is_null())
+        return JsonNodeType::null;
+
+    else if (jNode.is_boolean())
+        return JsonNodeType::boolean;
+
+    else if (jNode.is_number_integer() && jNode.is_number_unsigned())
+        return JsonNodeType::numberUnsigned;
+
+    else if (jNode.is_number_integer())
+        return JsonNodeType::numberInteger;
+
+    else if (jNode.is_number_float())
+        return JsonNodeType::numberFloat;
+
+    else if (jNode.is_string())
+        return JsonNodeType::string;
+
+    else if (jNode.is_array())
+        return JsonNodeType::array;
+
+    else if (jNode.is_object())
+        return JsonNodeType::object;
+
+    else 
+        return JsonNodeType::unknown;
+
+}
+
+//------------------------------
+inline
+std::string nodeTypeName( JsonNodeType nt )
+{
+    switch(nt)
+    {
+        case JsonNodeType::null           : return "null"    ;
+        case JsonNodeType::boolean        : return "boolean" ;
+        case JsonNodeType::numberUnsigned : return "unsigned";
+        case JsonNodeType::numberInteger  : return "integer" ;
+        case JsonNodeType::numberFloat    : return "float"   ;
+        case JsonNodeType::string         : return "string"  ;
+        case JsonNodeType::array          : return "array"   ;
+        case JsonNodeType::object         : return "object"  ;
+        default                           : return "unknown" ;
+    }
+}
+
+//------------------------------
+inline
+bool isScalarNode( JsonNodeType nodeType )
+{
+    if (nodeType==JsonNodeType::array || nodeType==JsonNodeType::object)
+        return false;
+    return true;
+}
+
+//------------------------------
+inline
+bool isArrayNode( JsonNodeType nodeType )
+{
+    if (nodeType==JsonNodeType::array)
+        return true;
+    return false;
+}
+
+//------------------------------
+inline
+bool isObjectNode( JsonNodeType nodeType )
+{
+    if (nodeType==JsonNodeType::object)
+        return true;
+    return false;
+}
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
 enum class FileFormat
 {
     unknown = 0,
@@ -118,10 +226,10 @@ nlohmann::json parseJsonOrYaml( const std::string &data
     
 }
 
+//------------------------------
 // file_input_adapter
 // input_stream_adapter
 // iterator_input_adapter
-
 
 nlohmann::json parseJsonOrYaml( std::istream &in
                               , bool allowComments = true
@@ -155,8 +263,7 @@ nlohmann::json parseJsonOrYaml( std::istream &in
 #endif    
 }
 
-
-
+//----------------------------------------------------------------------------
 inline
 std::string makeIndentStr( int indent )
 {
@@ -167,6 +274,7 @@ std::string makeIndentStr( int indent )
     return std::string();
 }
 
+//----------------------------------------------------------------------------
 inline
 bool isScalar( nlohmann::json &j )
 {
@@ -175,6 +283,7 @@ bool isScalar( nlohmann::json &j )
     return false;
 }
 
+//----------------------------------------------------------------------------
 template<typename StreamType> inline
 bool writeScalar( StreamType &s, nlohmann::json &j )
 {
@@ -218,7 +327,7 @@ bool writeScalar( StreamType &s, nlohmann::json &j )
     return true;
 }
 
-
+//----------------------------------------------------------------------------
 template<typename StreamType>
 void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
                   , int indent, int indentInc, bool noFirstIndent = false
@@ -284,7 +393,7 @@ void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто 
 
 }
 
-
+//----------------------------------------------------------------------------
 template<typename StreamType> inline
 void writeYaml( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
               )
@@ -300,3 +409,4 @@ void writeYaml( StreamType &s, nlohmann::json &j // j - не меняется, просто нет 
 } // namespace marty
 
 // marty::json_utils::
+

@@ -1,0 +1,17 @@
+{
+    "compiler": {
+        "c++": "199711",  // Language version
+        "family": "msvc",
+        "version": 1929   /* MSVC version*/
+    },
+    "copyright": "(C) 2013-2022 Niels Lohmann",
+    "name": "JSON for Modern C++",
+    "platform": "win32",
+    "url": "https://github.com/nlohmann/json",
+    "version": {
+        "major": 3,
+        "minor": 10,
+        "patch": 5,
+        "string": "3.10.5"
+    }
+}

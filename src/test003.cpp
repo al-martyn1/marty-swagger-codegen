@@ -29,7 +29,7 @@
  
 
 
-// #define USE_EXACT_TEST
+#define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -39,7 +39,10 @@ int main( int argc, char* argv[] )
 
     #ifdef USE_EXACT_TEST
     
-        INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
+        //INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
+        //INIT_TEST_INPUT_FILE_EX("amadeus_com_openapi.yaml");
+        //INIT_TEST_INPUT_FILE_EX("amazonaws_acm_openapi.yaml");
+        INIT_TEST_INPUT_FILE_EX("amazonaws_athena_openapi.yaml");
     
     #else
     
@@ -75,8 +78,17 @@ int main( int argc, char* argv[] )
 
 
         lout << width(2) << jDiff;
-
+        lout << "\n--------------------\n";
+        lout << width(2) << tmpJson;
+        lout << "\n--------------------\n";
+        lout << width(2) << jNew;
     }
+    // catch(const nlohmann::detail::exception &e)
+    // {
+    //     std::cerr << "Error: " << e.what() << std::endl;
+    //     std::cerr << "JSON:" << std::endl;
+    //     std::cerr << tmpJson << std::endl;
+    // }
     catch(const std::exception &e)
     {
         std::cerr << "Error: " << e.what() << std::endl;
