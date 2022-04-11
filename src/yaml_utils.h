@@ -282,6 +282,12 @@ std::string makeEscapedString( const std::string & str )
 {
     std::string res; res.reserve(str.size());
 
+
+
+    // return str;
+
+    #if 1
+
     for( auto ch : str )
     {
         switch(ch)
@@ -330,6 +336,7 @@ std::string makeEscapedString( const std::string & str )
     }
 
     return res;
+    #endif
 }
 
 
@@ -366,11 +373,32 @@ bool isNodeScalarSequence( const YAML::Node &node )
 }
 
 inline
+bool isNeedToBeQuoted(const std::string & str)
+{
+    for( auto ch : str )
+    {
+        switch(ch)
+        {
+            case ' ':
+            case '\\':
+            case '\'':
+            case '\"':
+            case '[':
+            case ']':
+            case '*':
+                 return true;
+        };
+    }
+
+    return false;
+}
+
+inline
 std::string makeQuoted( const std::string & str, bool forceQuoted = false )
 {
     if (!forceQuoted)
     {
-        if (str=="null" || str=="false" || str=="true")
+        if (str=="~" || str=="null" || str=="Null" || str=="NULL" || str=="false" || str=="true")
         {
             return str;
         }
@@ -379,6 +407,9 @@ std::string makeQuoted( const std::string & str, bool forceQuoted = false )
         if (detectedValueType==DetectedValueType::string)
             forceQuoted = true;
     }
+
+    if (!forceQuoted && isNeedToBeQuoted(str))
+        forceQuoted = true;
 
     if (!forceQuoted)
         return str;

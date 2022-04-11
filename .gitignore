@@ -34,3 +34,4 @@
 /_prj_msvc2019/*.user
 /doc/OAI-OpenAPI-Specification-b4cc425
 /tests/APIs_log
+/tests/*.log

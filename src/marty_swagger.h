@@ -1018,6 +1018,9 @@ struct InfoObject
     Opt< std::string    >                   x_serviceName  ;
     Opt< std::string    >                   x_release      ;
     Opt< bool           >                   x_preferred    ;
+    Opt< std::vector<std::string> >         x_tags         ;
+    Opt< bool           >                   x_unofficialSpec;
+    Opt< std::string    >                   x_description_language;
 
 /*
   x-origin:
@@ -1069,10 +1072,13 @@ void to_json( nlohmann::json& jNode, const InfoObject& o)
     util::convertToJsonFrom(jNode, "x-serviceName", o.x_serviceName   );
     util::convertToJsonFrom(jNode, "x-release"  , o.x_release         );
     util::convertToJsonFrom(jNode, "x-preferred", o.x_preferred       );
+    util::convertToJsonFrom(jNode, "x-tags"     , o .x_tags      );
+    util::convertToJsonFrom(jNode, "x-unofficialSpec", o .x_unofficialSpec);
     util::convertToJsonFrom(jNode, "x-origin"   , o.x_origin          );
     util::convertToJsonFrom(jNode, "x-apisguru-categories", o.x_apisguru_categories );
     util::convertToJsonFrom(jNode, "x-logo"     , o.x_logo            );
     util::convertToJsonFrom(jNode, "x-apiClientRegistration", o.x_apiClientRegistration );
+    util::convertToJsonFrom(jNode, "x-description-language", o.x_description_language );
 }
 
 inline
@@ -1089,10 +1095,13 @@ void from_json( const nlohmann::json& jNode, InfoObject& o)
     util::extractFromJsonTo(jNode, "x-serviceName", o.x_serviceName   );
     util::extractFromJsonTo(jNode, "x-release"    , o.x_release       );
     util::extractFromJsonTo(jNode, "x-preferred"  , o.x_preferred     );
+    util::extractFromJsonTo(jNode, "x-tags"       , o. x_tags         );
+    util::extractFromJsonTo(jNode, "x-unofficialSpec", o. x_unofficialSpec);
     util::extractFromJsonTo(jNode, "x-origin"     , o.x_origin        );
     util::extractFromJsonTo(jNode, "x-apisguru-categories", o.x_apisguru_categories );
     util::extractFromJsonTo(jNode, "x-logo"       , o.x_logo          );
     util::extractFromJsonTo(jNode, "x-apiClientRegistration", o.x_apiClientRegistration );
+    util::extractFromJsonTo(jNode, "x-description-language", o.x_description_language );
 }
 
 //----------------------------------------------------------------------------
@@ -1104,9 +1113,9 @@ void from_json( const nlohmann::json& jNode, InfoObject& o)
 // https://spec.openapis.org/oas/v3.1.0#serverVariableObject
 struct ServerVariableObject
 {
-    Opt< std::vector<std::string> >   _enum   ; // REQUIRED, NOT_EMPTY
-    Opt< std::string    >          _default   ; // REQUIRED
-    Opt< std::string    >       description   ;
+    Opt< std::vector<json_scalar> >   _enum   ; // REQUIRED, NOT_EMPTY
+    Opt< json_scalar >                _default   ; // REQUIRED
+    Opt< std::string    >              description   ;
 
 }; // struct ServerVariableObject
 
@@ -1247,7 +1256,7 @@ struct PropertyItemObject
     Opt< std::string >                                 type         ;
     Opt< std::string >                                 format       ;
 
-    Opt< std::vector<std::string> >                    _enum        ;
+    Opt< std::vector<json_scalar> >                    _enum        ;
 
     Opt< std::string >                                 example      ; // !!! В новых доках - examples, Type: Any - хз как парсить, да оно и не надо
 
@@ -1311,12 +1320,17 @@ struct PropertyObject
     Opt< std::string    >                              _ref         ;
     Opt< std::string    >                              type         ;
     Opt< std::string    >                              format       ;
+    Opt< std::vector<json_scalar> >                    _enum        ;
     //Opt< ReferenceObject >                             items        ;
     Opt< PropertyItemObject >                          items        ;
-    Opt< std::string    >                              _default     ;
+    Opt< json_scalar    >                              _default     ;
     Opt< std::string    >                              description  ;
     Opt< std::string    >                              example      ;
     Opt< std::map<std::string, PropertyObject> >       properties   ;
+    Opt< int >                                         minLength    ;
+    Opt< int >                                         maxLength    ;
+    Opt< json_number >                                 minimum      ;
+    Opt< json_number >                                 maximum      ;
 
 }; // struct PropertyObject
 
@@ -1328,11 +1342,16 @@ void to_json( nlohmann::json& jNode, const PropertyObject& o)
     util::convertToJsonFrom(jNode, "$ref"       , o._ref          );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, type         );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, format       );
+    util::convertToJsonFrom(jNode, "enum"       , o._enum         );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, items        ); // if type==array
     util::convertToJsonFrom(jNode, "default"       , o._default   );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description  );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, example      );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, properties   );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, minLength    );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, maxLength    );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, minimum      );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, maximum      );
 }
 
 inline
@@ -1341,11 +1360,16 @@ void from_json( const nlohmann::json& jNode, PropertyObject& o)
     util::extractFromJsonTo(jNode, "$ref"         , o._ref          );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, type         );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, format       );
+    util::extractFromJsonTo(jNode, "enum"         , o._enum         );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, items        );
     util::extractFromJsonTo(jNode, "default"         , o._default   );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description  );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, example      );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, properties   );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, minLength    );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, maxLength    );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, minimum      );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, maximum      );
 }
  
 //----------------------------------------------------------------------------
@@ -1379,7 +1403,7 @@ struct SchemaObject
 
     Opt< std::vector<std::string> >                    required     ; // list of required fields
 
-    Opt< std::vector<std::string> >                    _enum        ;
+    Opt< std::vector<json_scalar> >                    _enum        ;
 
     Opt< std::map<std::string, PropertyObject> >       properties   ;
 
@@ -1890,6 +1914,7 @@ void from_json( const nlohmann::json& jNode, RequestBodyOrReferenceObject& o)
 struct OperationObject
 {
     Opt< std::vector<std::string> >                    tags         ;
+    Opt< std::vector<std::string> >                    x_tags       ;
     Opt< std::string    >                              summary      ;
     Opt< std::string    >                              description  ;
     Opt< ExternalDocumentationObject >                 externalDocs ;
@@ -1919,6 +1944,7 @@ inline
 void to_json( nlohmann::json& jNode, const OperationObject& o)
 {
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, tags        );
+    util::convertToJsonFrom(jNode, "x-tags"     , o .x_tags      );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, summary     );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, externalDocs);
@@ -1933,6 +1959,7 @@ inline
 void from_json( const nlohmann::json& jNode, OperationObject& o)
 {
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, tags        );
+    util::extractFromJsonTo(jNode, "x-tags"       , o. x_tags      );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, summary     );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, externalDocs);

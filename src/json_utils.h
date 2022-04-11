@@ -11,6 +11,7 @@
 #include "nlohmann/json.hpp"
 #include "simple_formatter_json_inserter.h"
 
+#include "umba/regex_helpers.h"
 
 
 // marty::json_utils::
@@ -231,6 +232,7 @@ nlohmann::json parseJsonOrYaml( const std::string &data
 // input_stream_adapter
 // iterator_input_adapter
 
+
 nlohmann::json parseJsonOrYaml( std::istream &in
                               , bool allowComments = true
                               , std::string *pErrMsg = 0
@@ -283,7 +285,59 @@ bool isScalar( nlohmann::json &j )
     return false;
 }
 
-//----------------------------------------------------------------------------
+inline
+bool isNeedToBeQuotedImpl(const std::string & str)
+{
+    // if (!str.empty() && (str[0]=='<' || str[0]=='\''))
+    // {
+    //     std::cout << "";
+    // }
+
+    for( auto ch : str )
+    {
+        switch(ch)
+        {
+            case ' ':
+            case '\\':
+            case '\'':
+            case '\"':
+            case '[':
+            case ']':
+            case '*':
+            case '#':
+                 return true;
+        };
+    }
+
+    return false;
+}
+
+inline
+bool isNeedToBeQuoted(const std::string & str)
+{
+/*
+    if (!str.empty() && str[0]=='[')
+    {
+        std::cout << "NEED_TO_BE_QUOTED: " << isNeedToBeQuotedImpl(str) << "\n";
+    }
+*/
+    return isNeedToBeQuotedImpl(str);
+}
+
+inline
+std::string escapeSingleQuotes( const std::string &s)
+{
+    std::string res; res.reserve(s.size());
+    for( auto ch : s )
+    {
+        if (ch=='\'')
+            res.append(1,ch);
+        res.append(1,ch);
+    }
+
+    return res;
+}
+
 template<typename StreamType> inline
 bool writeScalar( StreamType &s, nlohmann::json &j )
 {
@@ -314,8 +368,8 @@ bool writeScalar( StreamType &s, nlohmann::json &j )
     else if (j.is_string())
     {
         auto val = j.get<std::string>();
-        if (val.empty() || val=="null")
-            s << '\'' << val << '\'';
+        if (val.empty() || val=="null" || isNeedToBeQuoted(val))
+            s << '\'' << escapeSingleQuotes(val) << '\'';
         else
             s << val;
     }
@@ -329,7 +383,7 @@ bool writeScalar( StreamType &s, nlohmann::json &j )
 
 //----------------------------------------------------------------------------
 template<typename StreamType>
-void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
+void writeNodeImpl( StreamType &s, nlohmann::json &j // j - РЅРµ РјРµРЅСЏРµС‚СЃСЏ, РїСЂРѕСЃС‚Рѕ РЅРµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ РІРµСЂСЃРёРё begin/end
                   , int indent, int indentInc, bool noFirstIndent = false
                   ) 
 {
@@ -352,6 +406,11 @@ void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто 
             {
                 s << makeIndentStr(indent);
             }
+
+            // if (it.key()=="x-pattern")
+            // {
+            //     s << "XPATTERN" << "\n";
+            // }
 
             s << it.key() << ":";
             auto val = it.value();
@@ -395,15 +454,155 @@ void writeNodeImpl( StreamType &s, nlohmann::json &j // j - не меняется, просто 
 
 //----------------------------------------------------------------------------
 template<typename StreamType> inline
-void writeYaml( StreamType &s, nlohmann::json &j // j - не меняется, просто нет константной версии begin/end
+void writeYaml( StreamType &s, nlohmann::json &j // j - РЅРµ РјРµРЅСЏРµС‚СЃСЏ, РїСЂРѕСЃС‚Рѕ РЅРµС‚ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ РІРµСЂСЃРёРё begin/end
               )
 {
     writeNodeImpl( s, j, 0, 2, false );
 }
 
+//----------------------------------------------------------------------------
 
 
 
+
+//----------------------------------------------------------------------------
+/*  Notes for iterator
+
+    https://json.nlohmann.me/api/basic_json/erase/#exceptions
+
+    - Invalidates iterators and references at or after the point of the erase, including the end() iterator.
+    - References and iterators to the erased elements are invalidated. Other references and iterators are not affected.
+
+ */
+void removePaths( nlohmann::json &jNode
+                , const std::basic_regex<char> &r
+                , std::regex_constants::match_flag_type flags = std::regex_constants::match_default
+                , std::string path = ""
+                )
+{
+    auto nodeType = marty::json_utils::nodeType(jNode);
+
+    std::vector< nlohmann::json::iterator > removeNodeIterators;
+
+    auto eraseChilds = [&]( nlohmann::json &j )
+    {
+        std::vector< nlohmann::json::iterator >::const_reverse_iterator rit = removeNodeIterators.rbegin();
+        for(; rit!=removeNodeIterators.rend(); ++rit )
+        {
+            nlohmann::json::iterator eit = *rit;
+            j.erase(eit);
+        }
+    };
+
+
+    if (marty::json_utils::isArrayNode(nodeType))
+    {
+        unsigned idx = 0;
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it, ++idx)
+        {
+            auto childPath = path + "/" + std::to_string(idx);
+            if (umba::regex_helpers::regexMatch(childPath, r, flags))
+            {
+                removeNodeIterators.emplace_back(it);
+            }
+        }
+
+        eraseChilds(jNode);
+
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it, ++idx)
+        {
+            removePaths( *it, r );
+        }
+    
+    }
+    else if (marty::json_utils::isObjectNode(nodeType))
+    {
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it)
+        {
+            auto childPath = path + "/" + it.key();
+            if (umba::regex_helpers::regexMatch(childPath, r, flags))
+            {
+                removeNodeIterators.emplace_back(it);
+            }
+        }
+
+        eraseChilds(jNode);
+
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it)
+        {
+            removePaths( it.value(), r );
+        }
+
+    }
+}
+
+//----------------------------------------------------------------------------
+void removePaths( nlohmann::json &jNode
+                , const std::vector< std::basic_regex<char> > &r
+                , std::regex_constants::match_flag_type flags = std::regex_constants::match_default
+                , std::string path = ""
+                )
+{
+    auto nodeType = marty::json_utils::nodeType(jNode);
+
+    std::vector< nlohmann::json::iterator > removeNodeIterators;
+
+    auto eraseChilds = [&]( nlohmann::json &j )
+    {
+        std::vector< nlohmann::json::iterator >::const_reverse_iterator rit = removeNodeIterators.rbegin();
+        for(; rit!=removeNodeIterators.rend(); ++rit )
+        {
+            nlohmann::json::iterator eit = *rit;
+            j.erase(eit);
+        }
+    };
+
+
+    if (marty::json_utils::isArrayNode(nodeType))
+    {
+        unsigned idx = 0;
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it, ++idx)
+        {
+            auto childPath = path + "/" + std::to_string(idx);
+            if (umba::regex_helpers::regexMatch(childPath, r, flags))
+            {
+                removeNodeIterators.emplace_back(it);
+            }
+        }
+
+        eraseChilds(jNode);
+
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it, ++idx)
+        {
+            auto childPath = path + "/" + std::to_string(idx);
+            removePaths( *it, r, flags, childPath );
+        }
+    
+    }
+    else if (marty::json_utils::isObjectNode(nodeType))
+    {
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it)
+        {
+            auto childPath = path + "/" + it.key();
+            if (umba::regex_helpers::regexMatch(childPath, r, flags))
+            {
+                removeNodeIterators.emplace_back(it);
+            }
+        }
+
+        eraseChilds(jNode);
+
+        for (nlohmann::json::iterator it=jNode.begin(); it!=jNode.end(); ++it)
+        {
+            auto childPath = path + "/" + it.key();
+            removePaths( it.value(), r, flags, childPath );
+        }
+
+    }
+}
+
+
+//----------------------------------------------------------------------------
 
 } // namespace json_utils
 } // namespace marty

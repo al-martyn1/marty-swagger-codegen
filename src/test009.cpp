@@ -1,5 +1,5 @@
 /*! \file
-    \brief Сканируем каталог OpenAPI описаний APIs-guru и процессим - делаем Diff между входной OpenAPI спекой, и тем, что (де)сериализовалось в C++ структуры
+    \brief Версия с удалением ненужных элементов. Сканируем каталог OpenAPI описаний APIs-guru и процессим - делаем Diff между входной OpenAPI спекой, и тем, что (де)сериализовалось в C++ структуры
 
     https://github.com/APIs-guru/openapi-directory/tree/main/APIs
 */
@@ -243,8 +243,20 @@ int main( int argc, char* argv[] )
 
         auto canonicalInputName = umba::filename::makeCanonical(foundFile);
 
+        static const
+        std::vector< std::regex >
+        removePathRegexes = { std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/example^" , true ) ) // use anchors
+                            , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/examples^", true ) ) // use anchors
+                            , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/x-waiters^", true ) ) // use anchors
+                            , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/x-aws-exception^", true ) ) // use anchors
+                            , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/xml/wrapped^", true ) ) // use anchors
+                            // /info/x-unofficialSpec
+                            };
+
         try
         {
+            marty::json_utils::removePaths( j, removePathRegexes );
+
             auto apiSpec = j.get<marty::swagger::OpenApiSpecObject>();
 
             nlohmann::json jNew = apiSpec;

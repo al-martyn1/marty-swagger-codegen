@@ -2,3 +2,8 @@
 @call test002.bat
 @call test003.bat
 @call test004.bat
+@call test005.bat
+@call test006.bat
+@call test007.bat
+@call test008.bat
+@call test009.bat
