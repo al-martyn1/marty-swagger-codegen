@@ -1241,27 +1241,28 @@ void from_json( const nlohmann::json& jNode, ReferenceObject& o)
 
 
 //----------------------------------------------------------------------------
+struct SchemaObject;
+struct SchemaOrReferenceObject;
 struct PropertyObject;
 void to_json( nlohmann::json& jNode, const PropertyObject& o);
 void from_json( const nlohmann::json& jNode, PropertyObject& o);
 
 //----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
 struct PropertyItemObject
 {
-    Opt< std::string    >                              _ref         ; // REQUIRED
-
-    Opt< std::string    >                              summary      ;
-    Opt< std::string    >                              description  ;
-
-    Opt< std::string >                                 type         ;
-    Opt< std::string >                                 format       ;
-
+    Opt< std::string >                                 _ref         ;
+    Opt< std::string >                                 type, format, description, summary;
     Opt< std::vector<json_scalar> >                    _enum        ;
-
+    Opt< json_scalar    >                              _default     ;
     Opt< std::string >                                 example      ; // !!! В новых доках - examples, Type: Any - хз как парсить, да оно и не надо
-
     Opt< std::map<std::string, PropertyObject> >       properties   ;
-
+    Opt< int >                                         minLength, maxLength;
+    Opt< json_number >                                 minimum, maximum;
 
 }; // struct PropertyItemObject
 
@@ -1270,16 +1271,13 @@ inline
 void to_json( nlohmann::json& jNode, const PropertyItemObject& o)
 {
     util::convertToJsonFrom(jNode, "$ref"       , o._ref          );
-
-    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, summary      );
-    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description  );
-
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, type         );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, format       );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description  );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, summary      );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, example      );
-
     util::convertToJsonFrom(jNode, "enum"       , o._enum         );
-
+    util::convertToJsonFrom(jNode, "default"    , o._default   );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, properties   );
 }
 
@@ -1287,16 +1285,13 @@ inline
 void from_json( const nlohmann::json& jNode, PropertyItemObject& o )
 {
     util::extractFromJsonTo(jNode, "$ref"         , o._ref         );
-
-    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, summary     );
-    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description );
-
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, type        );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, format      );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, summary     );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, example     );
-
     util::extractFromJsonTo(jNode, "enum"         , o._enum        );
-
+    util::extractFromJsonTo(jNode, "default"      , o._default   );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, properties  );
 }
  
@@ -1306,31 +1301,45 @@ void from_json( const nlohmann::json& jNode, PropertyItemObject& o )
 
 
 //----------------------------------------------------------------------------
-struct SchemaObject;
-struct SchemaOrReferenceObject;
-
-//----------------------------------------------------------------------------
-
-
-
-
-//----------------------------------------------------------------------------
 struct PropertyObject
 {
     Opt< std::string    >                              _ref         ;
-    Opt< std::string    >                              type         ;
-    Opt< std::string    >                              format       ;
-    Opt< std::vector<json_scalar> >                    _enum        ;
-    //Opt< ReferenceObject >                             items        ;
-    Opt< PropertyItemObject >                          items        ;
-    Opt< json_scalar    >                              _default     ;
-    Opt< std::string    >                              description  ;
+    Opt< std::string    >                              type, format, description, summary;
     Opt< std::string    >                              example      ;
-    Opt< std::map<std::string, PropertyObject> >       properties   ;
-    Opt< int >                                         minLength    ;
-    Opt< int >                                         maxLength    ;
-    Opt< json_number >                                 minimum      ;
-    Opt< json_number >                                 maximum      ;
+    Opt< std::vector<json_scalar> >                    _enum        ;
+    Opt< json_scalar    >                              _default     ;
+    Opt< PropertyItemObject >                          items        ; // те же свойства, что и у PropertyObject, 
+    // но структура не может сама себя включать по значению, поэтому ввёл доп тип. Данное поле описывает повторяющиеся одинаковые элементы
+    Opt< std::map<std::string, PropertyObject> >       properties   ; // Описывает одиночные именованные свойства, которые, 
+    // тем не менее, могут быть типа array (или нет? надо проверить, может ли быть type: array и $ref на какой-то тип? )
+    Opt< int >                                         minLength, maxLength;
+    Opt< json_number >                                 minimum, maximum;
+
+    void fromPropertyItemObject(const PropertyItemObject &pi)
+    {
+        _ref           = pi._ref       ;
+        type           = pi.type       ;
+        format         = pi.format     ;
+        description    = pi.description;
+        summary        = pi.summary    ;
+        example        = pi.example    ;
+        _enum          = pi._enum      ;
+        _default       = pi._default   ;
+        //items          = pi.;
+        properties     = pi.properties ;
+        minLength      = pi.minLength  ;
+        maxLength      = pi.maxLength  ;
+        minimum        = pi.minimum    ;
+        maximum        = pi.maximum    ;
+    }
+
+    static 
+    PropertyObject makeFromPropertyItemObject(const PropertyItemObject &pi)
+    {
+        PropertyObject po;
+        po.fromPropertyItemObject(pi);
+        return po;
+    }
 
 }; // struct PropertyObject
 
@@ -1343,9 +1352,10 @@ void to_json( nlohmann::json& jNode, const PropertyObject& o)
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, type         );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, format       );
     util::convertToJsonFrom(jNode, "enum"       , o._enum         );
+    util::convertToJsonFrom(jNode, "default"    , o._default   );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, items        ); // if type==array
-    util::convertToJsonFrom(jNode, "default"       , o._default   );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, description  );
+    MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, summary      );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, example      );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, properties   );
     MARTY_SWAGGER_UTIL_PUT_MEMBER_TO_JSON( jNode, o, minLength    );
@@ -1361,9 +1371,10 @@ void from_json( const nlohmann::json& jNode, PropertyObject& o)
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, type         );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, format       );
     util::extractFromJsonTo(jNode, "enum"         , o._enum         );
+    util::extractFromJsonTo(jNode, "default"      , o._default   );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, items        );
-    util::extractFromJsonTo(jNode, "default"         , o._default   );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, description  );
+    MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, summary     );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, example      );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, properties   );
     MARTY_SWAGGER_UTIL_GET_MEMBER_FROM_JSON( jNode, o, minLength    );
@@ -2207,6 +2218,117 @@ void from_json( const nlohmann::json& jNode, OpenApiSpecDetectStubObject& o)
 
 
 
+//----------------------------------------------------------------------------
+// marty::swagger::util::
+namespace util
+{
+
+
+//------------------------------
+inline
+std::string unquoteSimpleQuoted( const std::string &str )
+{
+    if (str.size()<2)
+        return str;
+
+    const typename std::string::value_type quotChar = str.front();
+
+    if (str.front()!=quotChar || str.back()!=quotChar)
+        return str;
+
+    std::string::size_type pos = 1, endPos = str.size()-1;
+
+    std::string res; res.reserve(endPos-pos);
+
+    bool prevQuot = false;
+
+    for( ; pos!=endPos; ++pos )
+    {
+        auto ch = str[pos];
+
+        if (prevQuot)
+        {
+            if (ch==quotChar)
+            {
+                res.append(1,quotChar); // remove diplicated quots
+            }
+            else
+            {
+                res.append(1,quotChar);
+                res.append(1,ch); // не знаю, что это, просто игнорим
+            }
+            prevQuot = false;
+        }
+        else
+        {
+            res.append(1,ch);
+        }
+    }
+
+    if (prevQuot)
+    {
+        res.append(1,quotChar);
+    }
+
+    return res;
+}
+
+//------------------------------
+inline
+std::string removeLeadingHashCopy( const std::string &str )
+{
+    if (str.empty() || str[0]!='#')
+        return str;
+
+    return std::string(str, 1);
+}
+
+//------------------------------
+inline
+std::string getRefPrefix( const std::string &ref, std::string::size_type pos = std::string::npos )
+{
+    if (pos==std::string::npos)
+        pos = ref.rfind('/');
+    return removeLeadingHashCopy(std::string(ref, 0, pos));
+}
+
+//------------------------------
+//! Возвращает значение ссылки (последний элемент пути, разделённого символами '/')
+/*!
+    ref             : '#/components/schemas/InstrumentType'
+    *pRefPrefixPath : '/components/schemas' ('#' at front removed if present)
+    returns         : 'InstrumentType'
+
+ */
+inline
+std::string getRefValue( const std::string &ref, std::string *pRefPrefixPath = 0 )
+{
+    std::string::size_type pos = ref.rfind('/');
+
+    if (pRefPrefixPath)
+    {
+        *pRefPrefixPath = getRefPrefix(ref, pos);
+    }
+
+    if (pos==ref.npos)
+    {
+        return std::string();
+    }
+
+    return std::string(ref, pos+1);
+
+}
+
+
+} // namespace util
+// marty::swagger::util::
+
+//----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
 
 } // namespace swagger
 } // namespace marty

@@ -4,11 +4,16 @@ Swagger – умная документация вашего RESTful web-API —
     https://habr.com/ru/post/434798/
     !!! Ниачём
 
+    https://habr.com/ru/company/ruvds/blog/564508/
+    Генерирование спецификаций на основе кода - там же
+
+
 Начало работы с Swashbuckle и ASP.NET Core - https://docs.microsoft.com/ru-ru/aspnet/core/tutorials/getting-started-with-swashbuckle?view=aspnetcore-6.0&tabs=visual-studio&viewFallbackFrom=aspnetcore-2.2
 
 Swagger: что это такое, и как с ним работать? - https://highload.today/swagger-api/
 
 https://swagger.io/blog/api-strategy/difference-between-swagger-and-openapi/
+https://github.com/swagger-api/swagger-codegen
 
 YAML - https://ru.wikipedia.org/wiki/YAML
 YAML за 5 минут - https://tproger.ru/translations/yaml-za-5-minut-sintaksis-i-osnovnye-vozmozhnosti/
@@ -26,3 +31,10 @@ Default    - https://datatracker.ietf.org/doc/html/draft-bhutton-json-schema-val
 
 
 Куча всяких OpenAPI - https://github.com/APIs-guru/openapi-directory/tree/main/APIs
+
+
+nlohmann::json Q/A
+
+  Discussions - https://github.com/nlohmann/json/discussions
+  How to get string value from a number? - https://github.com/nlohmann/json/discussions/3432
+  Is there a way to preserve the order of elements in an object? - https://github.com/nlohmann/json/discussions/3438

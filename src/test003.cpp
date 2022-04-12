@@ -29,7 +29,7 @@
  
 
 
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )

@@ -18,3 +18,5 @@ test008.cpp      - Remove a paths that matches the taken regexes.
 test009.cpp      - Версия с удалением ненужных элементов. Сканируем каталог OpenAPI
                    описаний APIs-guru и процессим - делаем Diff между входной OpenAPI спекой, и
                    тем, что (де)сериализовалось в C++ структуры.
+test010.cpp      - Начинаем разбор OpenAPI спеки.
+test011.cpp      - Поиск путей в JSON, соответствующих маске $ref, и выцеп OpenAPI типов.
