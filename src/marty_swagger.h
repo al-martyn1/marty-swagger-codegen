@@ -20,11 +20,13 @@
 #include <variant>
 #include <string>
 
+
+#include "dependency_finder.h"
+
 // marty::swagger::
 
 namespace marty{
-namespace swagger
-{
+namespace swagger{
 
 
 
@@ -2319,11 +2321,180 @@ std::string getRefValue( const std::string &ref, std::string *pRefPrefixPath = 0
 
 }
 
+//-----------------------------------------------------------------------------
+inline
+std::string getFirstPathItem( const std::string &path )
+{
+    std::string::size_type pos = path.find('/');
+
+    if (pos==path.npos)
+    {
+        return std::string();
+    }
+
+    return std::string(path, 0, pos);
+
+}
+
+//-----------------------------------------------------------------------------
+//! Возвращает true, если строка начинается с указанного префикса (StringType)
+/*! \tparam StringType Тип входной и результирующей строки (std::basic_string)
+    \param str         Входная строка
+    \param prefix      Префикс, есть перегрузка для const StringType::value_type*
+    \returns           true, если строка начинается с указанного префикса
+ */
+template <typename StringType> inline bool startsWith( const StringType &str, const StringType &prefix )
+{
+    if (str.size()<prefix.size())
+        return false;
+
+    return str.compare( 0, prefix.size(), prefix )==0;
+}
+
+//-----------------------------------------------------------------------------
+//! Возвращает true, если строка начинается с указанного префикса (StringType::value_type*)
+/*! \copydetails starts_with */
+template <typename StringType> inline bool startsWith( const StringType &str, const typename StringType::value_type *prefix )
+{
+    return startsWith(str, StringType(prefix));
+}
+
+//-----------------------------------------------------------------------------
+//! Возвращает true, если строка начинается с указанного префикса (StringType), удаляя префикс
+/*! \copydetails starts_with */
+template <typename StringType> inline bool startsWithAndStrip( StringType &str, const StringType &prefix )
+{
+    if (!startsWith( str, prefix ))
+        return false;
+
+    str.erase( 0, prefix.size() );
+
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+//! Возвращает true, если строка начинается с указанного префикса (StringType::value_type*), удаляя префикс
+/*! \copydetails starts_with */
+template <typename StringType> inline bool startsWithAndStrip( StringType &str, const typename StringType::value_type *prefix )
+{
+    return startsWithAndStrip(str, StringType(prefix));
+}
+
+//-----------------------------------------------------------------------------
+inline
+nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
+{
+    if (!path.empty() && path[0]!='/')
+        return nlohmann::json_pointer<nlohmann::json>(std::string("/")+path);
+    return nlohmann::json_pointer<nlohmann::json>(path);
+}
+
+inline
+nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
+{
+    if (!path)
+        //return nlohmann::json_pointer<json>();
+        makeJsonPointer(std::string());
+
+    return makeJsonPointer(std::string(path));
+}
+
+
 
 } // namespace util
 // marty::swagger::util::
 
 //----------------------------------------------------------------------------
+
+
+
+
+//----------------------------------------------------------------------------
+#if 0
+    /components/schemas/UserAccountsResponse/properties/payload/$ref - '#/components/schemas/UserAccounts'
+    /paths/~1sandbox~1currencies~1balance/post/requestBody/content/application~1json/schema/$ref - '#/components/schemas/SandboxSetCurrencyBalanceRequest'
+#endif
+
+template < typename ComponentsAllSetType
+         , typename ComponentsUsedSetType
+         , typename DependencyFinderType
+         >
+void findComponents(  /* const */ nlohmann::json  &apiSpecJson
+                   , DependencyFinderType         &dependencyFinder
+                   , ComponentsAllSetType         *pComponentsAllSet
+                   , ComponentsUsedSetType        *pComponentsUsedSet
+                   )
+{
+    std::vector<std::string> refMatchedPaths;
+
+    std::string refRegexStr = umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/$ref^", true );
+
+    marty::json_utils::findPathMatches( apiSpecJson, refMatchedPaths
+                                      , std::regex( refRegexStr ) // use anchors
+                                      );
+
+    for( auto matchedPath : refMatchedPaths )
+    {
+        auto refValFull = marty::json_utils::getScalarStr(apiSpecJson[util::makeJsonPointer(matchedPath)]);
+             refValFull =  /* marty::swagger:: */ util::unquoteSimpleQuoted(refValFull); // umba::string_plus::unquoteSimpleQuoted - тоже самое; 
+
+        auto refVal     =  /* marty::swagger:: */ util::getRefValue(refValFull);
+        auto refPrefix  =  /* marty::swagger:: */ util::getRefPrefix(refValFull);
+
+        if (refPrefix!="/components/schemas") // куда-то ссылается, но хз куда
+             continue;
+
+        auto componentName = matchedPath;
+        if ( /* marty::swagger:: */ util::startsWithAndStrip(componentName,"/components/schemas/"))
+        {
+            // Тут мы нашли ссылку на "/components/schemas" и ссылается тоже откуда-то из "/components/schemas"
+            // Это найдена зависимость в описаниях компонентов
+            componentName = marty::swagger::util::getFirstPathItem(componentName);
+            dependencyFinder.addDependency(componentName, refVal);
+            if (pComponentsAllSet)
+                pComponentsAllSet->insert(componentName);
+        }
+        else if ( /* marty::swagger:: */ util::startsWithAndStrip(componentName,"/paths/"))
+        {
+            // Тут кто-то ссылается из раздела "/paths/"
+            // Это реально используемые в API компоненты
+            if (pComponentsUsedSet)
+                pComponentsUsedSet->insert(refVal);
+        }
+
+    }
+
+
+    // Остались "/components/schemas", которые никуда на других не ссылаются
+    // Ищем их. Они нужны, чтобы выцепить вообще всё типы из спеки
+
+    std::vector<std::string> matchedComponentPaths;
+
+    std::string componentsRegexStr = umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/components/schemas/*^", true );
+
+    marty::json_utils::findPathMatches( apiSpecJson, matchedComponentPaths
+                                      , std::regex( componentsRegexStr ) // use anchors
+                                      );
+
+    // lout << "### Found component paths:\n";
+    for( const auto &mcp : matchedComponentPaths )
+    {
+        // lout << mcp << "\n";
+        auto componentName = mcp;
+        if ( /* marty::swagger:: */ util::startsWithAndStrip(componentName,"/components/schemas/"))
+        {
+            componentName =  /* marty::swagger:: */ util::getFirstPathItem(componentName);
+            if (!componentName.empty())
+            {
+            if (pComponentsAllSet)
+                pComponentsAllSet->insert(componentName);
+            }
+        }
+    }
+
+}
+
+
 
 
 

@@ -9,3 +9,5 @@
 @call test009.bat
 @call test010.bat
 @call test011.bat
+@call test012.bat
+@call test013.bat

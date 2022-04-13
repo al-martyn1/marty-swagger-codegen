@@ -1,5 +1,5 @@
 /*! \file
-    \brief Поиск путей в JSON, соответствующих маске $ref, и выцеп OpenAPI типов
+    \brief Строим зависимости для типов из OpenAPI спеки по $ref-ссылкам - тест
 */
 
 #include <iostream>
@@ -19,12 +19,16 @@
 #include <cstdlib>
 #include <exception>
 #include <stdexcept>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "umba/simple_formatter.h"
 
 #include "test_utils.h"
 
 #include "marty_swagger.h"
+
+#include "dependency_finder.h"
 
 
 
@@ -49,7 +53,7 @@ nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
  
 
 
-// #define USE_EXACT_TEST
+#define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -59,8 +63,8 @@ int main( int argc, char* argv[] )
 
     #ifdef USE_EXACT_TEST
     
-        //INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
-        INIT_TEST_INPUT_FILE_EX("openapi.yaml");
+        //INIT_TEST_INPUT_FILE_EX("openapi.yaml");
+        INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
     
     #else
     
@@ -119,34 +123,180 @@ int main( int argc, char* argv[] )
         /paths/~1sandbox~1positions~1balance/post/requestBody/content/application~1json/schema/$ref - '#/components/schemas/SandboxSetPositionBalanceRequest'
     #endif
 
-    lout << "Found refs:\n\n";
+    marty::swagger::DependencyFinder<std::string>  dependencyFinder;
+
+
+    std:: /* unordered_ */ set<std::string> foundComponents;
+    std:: /* unordered_ */ set<std::string> foundComponentsInPaths;
+
+    //lout << "Found refs:\n\n";
     for( auto matchedPath : matchedPaths )
     {
         auto refValFull = marty::json_utils::getScalarStr(apiSpecJson[makeJsonPointer(matchedPath)]);
              refValFull = marty::swagger::util::unquoteSimpleQuoted(refValFull); // umba::string_plus::unquoteSimpleQuoted - тоже самое; 
-                                                //TODO: !!! надо бы сделать туда ещё разбор CSV строки
+
         auto refVal     = marty::swagger::util::getRefValue(refValFull);
         auto refPrefix  = marty::swagger::util::getRefPrefix(refValFull);
 
-        lout << "" // "  " // Два пробела - таки два пробела
-             // << refVal
-             << left << width(94)   << matchedPath << " - " 
-             // << left << width(54)   << refValFull << ", "
-             << "name: "
-             << refVal 
-             // << ", "
-             // << left << width(24)   << refVal << ", "
-             // << left <</*width(70)<<*/ "prefix: " << refPrefix
-             << "\n";
+        if (refPrefix!="/components/schemas")
+             continue;
 
         auto componentName = matchedPath;
         if (marty::swagger::util::startsWithAndStrip(componentName,"/components/schemas/"))
         {
             componentName = marty::swagger::util::getFirstPathItem(componentName);
-            lout << "    " << componentName << " depends on " << refVal << "\n";
+            dependencyFinder.addDependency(componentName, refVal);
+            foundComponents.insert(componentName);
+        }
+        else if (marty::swagger::util::startsWithAndStrip(componentName,"/paths/"))
+        {
+            foundComponentsInPaths.insert(refVal);
         }
 
     }
+
+    // Тут мы ищем вообще всё из раздела /components/schemas/
+    std::vector<std::string> matchedComponentPaths;
+
+    std::string componentsRegexStr = umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/components/schemas/*^", true );
+
+    marty::json_utils::findPathMatches( apiSpecJson, matchedComponentPaths
+                                      , std::regex( componentsRegexStr ) // use anchors
+                                      );
+
+    // lout << "### Found component paths:\n";
+    for( const auto &mcp : matchedComponentPaths )
+    {
+        // lout << mcp << "\n";
+        auto componentName = mcp;
+        if (marty::swagger::util::startsWithAndStrip(componentName,"/components/schemas/"))
+        {
+            componentName = marty::swagger::util::getFirstPathItem(componentName);
+            if (!componentName.empty())
+                foundComponents.insert(componentName);
+        }
+    }
+
+
+
+    lout << "\n";
+    lout << "### Found components (Total: " << foundComponents.size() << "):\n";
+    for( auto cmp : foundComponents )
+    {
+        lout << left << width(24) << cmp;
+        auto deps = dependencyFinder.getAllDependencies(cmp);
+        if (!deps.empty())
+        {
+            lout << " ";
+            std::size_t cnt = 0;
+            for( const auto &depName : deps )
+            {
+                lout << (cnt==0 ? "- " : ", " ) << depName;
+                ++cnt;
+            }
+        }
+
+        lout << "\n";
+
+    }
+
+
+    lout << "\n";
+    lout << "### Used components (Total: " << foundComponentsInPaths.size() << "):\n";
+
+    for( auto cmp : foundComponentsInPaths )
+    {
+        lout << cmp << "\n";
+    }
+
+
+
+    std::set<std::string> foundComponentsAndDeps;
+    std::set<std::string> foundComponentsInPathsAndDeps;
+
+
+
+    auto allUsedDeps = dependencyFinder.getAllDependencies(foundComponentsInPaths, true);
+    lout << "\n";
+    lout << "### All used components in order to declare (Total: " << allUsedDeps.size() << "):\n";
+
+    //for( auto cmp : dependencyFinder.getAllNames() )
+    for( auto cmp : allUsedDeps )
+    {
+        foundComponentsInPathsAndDeps.insert(cmp);
+
+        auto deps = dependencyFinder.getAllDependencies(cmp);
+
+        if (deps.empty())
+        {
+            lout << cmp;
+        }
+        else
+        {
+            lout << left << width(24) << cmp;
+
+            lout << " ";
+            std::size_t cnt = 0;
+            for( const auto &depName : deps )
+            {
+                lout << (cnt==0 ? "- " : ", " ) << depName;
+                ++cnt;
+            }
+        }
+
+        lout << "\n";
+    }
+
+    
+    auto allFoundDeps = dependencyFinder.getAllDependencies(foundComponents, true);
+    lout << "\n";
+    lout << "### All found components in order to declare (Total: " << allFoundDeps.size() << "):\n";
+
+    //for( auto cmp : dependencyFinder.getAllNames() )
+    for( auto cmp : allFoundDeps )
+    {
+        foundComponentsAndDeps.insert(cmp);
+
+        auto deps = dependencyFinder.getAllDependencies(cmp);
+
+        if (deps.empty())
+        {
+            lout << cmp;
+        }
+        else
+        {
+            lout << left << width(24) << cmp;
+
+            lout << " ";
+            std::size_t cnt = 0;
+            for( const auto &depName : deps )
+            {
+                lout << (cnt==0 ? "- " : ", " ) << depName;
+                ++cnt;
+            }
+        }
+
+        lout << "\n";
+    }
+
+
+
+    lout << "\n";
+    lout << "### List of all used components in order to declare (Total: " << foundComponentsInPathsAndDeps.size() << "):\n";
+    for( auto cmp : foundComponentsInPathsAndDeps )
+    {
+            lout << cmp << "\n";
+    }
+
+
+    lout << "\n";
+    lout << "### List of all found components in order to declare (Total: " << foundComponentsAndDeps.size() << "):\n";
+    for( auto cmp : foundComponentsAndDeps )
+    {
+            lout << cmp << "\n";
+    }
+
+
 
     return 0;
 }
