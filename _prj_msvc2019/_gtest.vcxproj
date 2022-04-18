@@ -25,6 +25,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(ProjectDir)\umba_msvcver.props" />
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_common.props" />
+  <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_local_common_prjdirs.props" />
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_prjdirs.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
