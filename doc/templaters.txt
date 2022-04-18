@@ -1,0 +1,16 @@
+Спецификация Jinja2: http://jinja.pocoo.org/docs/2.10/templates/
+Реализация Jinja2Cpp: https://github.com/flexferrum/Jinja2Cpp
+Реализация Jinja2CppLight: https://github.com/hughperkins/Jinja2CppLight
+Реализация inja: https://github.com/pantor/inja
+Утилита для генерации кода на основе шаблонов Jinja2: https://github.com/flexferrum/autoprogrammer/tree/jinja2cpp_refactor
+
+Шаблоны третьего порядка, или как я портировал Jinja2 на C++ - https://habr.com/ru/post/416581/
+Jinja2 в мире C++, часть вторая. Рендеринг                   - https://habr.com/ru/post/419011/
+Jinja2 в мире C++, часть третья. «Теперь ты в конане»        - https://habr.com/ru/post/491426/
+
+Метапрограммирование в C++ и русская литература: через страдания к просветлению
+  https://habr.com/ru/article/448466/
+
+lexertk
+  https://github.com/ArashPartow/lexertk
+
