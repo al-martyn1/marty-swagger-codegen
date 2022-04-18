@@ -10,6 +10,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <algorithm>
 
 
 #if defined(_MSC_VER)
@@ -190,6 +191,60 @@ public:
                           , true // addNames
                           );
     }
+
+
+    // Упорядочиваем имена (уже в порядке по зависимостям относительно друг друга) по возрастанию количества зависимостей
+    std::vector<StringType> getSortedByDependenciesCountAscending( const std::vector<StringType> &names
+                                                                 , std::vector< std::vector<StringType> > *pDeps
+                                                                 ) const
+    {
+        struct NameWithDependencies
+        {
+            StringType                name;
+            std::vector<StringType>   deps;
+        };
+
+        std::vector< NameWithDependencies > namesWithDeps;
+        namesWithDeps.reserve(names.size());
+
+        // Собрали все зависимости для входных имён
+        for( const auto &name : names )
+        {
+            // namesWithDeps.emplace_back( { name, getAllDependencies(name) } );
+            namesWithDeps.emplace_back( name, getAllDependencies(name) );
+        }
+
+        std::stable_sort( namesWithDeps.begin(), namesWithDeps.end()
+                        , []( const NameWithDependencies &nd1, const NameWithDependencies &nd2 )
+                            {
+                                if (nd1.deps.size()<nd2.deps.size())
+                                    return true;
+                                if (nd1.deps.size()>nd2.deps.size())
+                                    return false;
+                                return nd1.name<nd2.name;
+                            }
+                        );
+
+        
+        if (pDeps)
+            pDeps->reserve(namesWithDeps.size());
+
+        std::vector<StringType> resNames;
+            resNames.reserve(namesWithDeps.size());
+
+        for( const auto &nd : namesWithDeps )
+        {
+            if (pDeps)
+                pDeps->emplace_back(nd.deps);
+
+            resNames.emplace_back(nd.name);
+        }
+        
+        return resNames;
+
+    }
+
+
 
 }; // class Dependencies
 

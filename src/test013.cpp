@@ -113,8 +113,24 @@ int main( int argc, char* argv[] )
     marty::swagger::findComponents( apiSpecJson, dependencyFinder, &foundComponents, &foundComponentsInPaths );
 
 
-    lout << "\n";
-    lout << "### Found components (Total: " << foundComponents.size() << "):\n";
+    auto printSectionHeader = [&]( const char *title, int szFound = -1, bool bFirst = false )
+        {
+            if (!bFirst)
+                lout << "\n\n#----------------------------------------------------------------------------\n";
+
+            lout << "### "<<title;
+
+            if (szFound>=0)
+                lout << " (Total: " << szFound << ")";
+
+            lout << ":\n\n";
+        };
+
+
+
+    //----------------------------------------------------------------------------
+
+    printSectionHeader("Found components", (int)foundComponents.size(), true);
     for( auto cmp : foundComponents )
     {
         lout << left << width(24) << cmp;
@@ -135,8 +151,10 @@ int main( int argc, char* argv[] )
     }
 
 
-    lout << "\n";
-    lout << "### Used components (Total: " << foundComponentsInPaths.size() << "):\n";
+
+    //----------------------------------------------------------------------------
+
+    printSectionHeader("Used components", (int)foundComponentsInPaths.size());
 
     for( auto cmp : foundComponentsInPaths )
     {
@@ -148,75 +166,72 @@ int main( int argc, char* argv[] )
     std::set<std::string> foundComponentsAndDeps;
     std::set<std::string> foundComponentsInPathsAndDeps;
 
+    auto printStringVector = [&]( const std::vector<std::string> &v )
+    {
+        for( unsigned i=0; i!=v.size(); ++i)
+        {
+            if (i)
+                lout << ", ";
+            lout << v[i];
+        }
+    };
 
+    auto printNameAndDeps = [&]( const std::string &name, const std::vector<std::string> &deps, int nameWidth )
+    {
+        if (!deps.size())
+        {
+            lout << name; // << "\n";
+        }
+        else
+        {
+            lout << left << width(nameWidth) << name << " - ";
+            printStringVector(deps);
+        }
+    };
+
+
+
+    //----------------------------------------------------------------------------
 
     auto allUsedDeps = dependencyFinder.getAllDependencies(foundComponentsInPaths, true);
-    lout << "\n";
-    lout << "### All used components in order to declare (Total: " << allUsedDeps.size() << "):\n";
+    printSectionHeader("All used components in order to declare", (int)allUsedDeps.size());
 
-    //for( auto cmp : dependencyFinder.getAllNames() )
     for( auto cmp : allUsedDeps )
     {
         foundComponentsInPathsAndDeps.insert(cmp);
 
         auto deps = dependencyFinder.getAllDependencies(cmp);
 
-        if (deps.empty())
-        {
-            lout << cmp;
-        }
-        else
-        {
-            lout << left << width(24) << cmp;
-
-            lout << " ";
-            std::size_t cnt = 0;
-            for( const auto &depName : deps )
-            {
-                lout << (cnt==0 ? "- " : ", " ) << depName;
-                ++cnt;
-            }
-        }
-
+        printNameAndDeps(cmp, deps, 32);
         lout << "\n";
     }
 
     
-    auto allFoundDeps = dependencyFinder.getAllDependencies(foundComponents, true);
-    lout << "\n";
-    lout << "### All found components in order to declare (Total: " << allFoundDeps.size() << "):\n";
 
-    //for( auto cmp : dependencyFinder.getAllNames() )
+    //----------------------------------------------------------------------------
+
+    auto allFoundDeps = dependencyFinder.getAllDependencies(foundComponents, true);
+    printSectionHeader("All found components in order to declare", (int)allFoundDeps.size());
+
     for( auto cmp : allFoundDeps )
     {
         foundComponentsAndDeps.insert(cmp);
 
         auto deps = dependencyFinder.getAllDependencies(cmp);
 
-        if (deps.empty())
-        {
-            lout << cmp;
-        }
-        else
-        {
-            lout << left << width(24) << cmp;
-
-            lout << " ";
-            std::size_t cnt = 0;
-            for( const auto &depName : deps )
-            {
-                lout << (cnt==0 ? "- " : ", " ) << depName;
-                ++cnt;
-            }
-        }
-
+        printNameAndDeps(cmp, deps, 32);
         lout << "\n";
+
     }
 
 
-
+    // Нужно было только чтобы сравнить два списка
+    #if 0
     lout << "\n";
+    lout << "\n";
+    lout << "#----------------------------------------------------------------------------\n";
     lout << "### List of all used components in order to declare (Total: " << foundComponentsInPathsAndDeps.size() << "):\n";
+    lout << "\n";
     for( auto cmp : foundComponentsInPathsAndDeps )
     {
             lout << cmp << "\n";
@@ -224,12 +239,15 @@ int main( int argc, char* argv[] )
 
 
     lout << "\n";
+    lout << "\n";
+    lout << "#----------------------------------------------------------------------------\n";
     lout << "### List of all found components in order to declare (Total: " << foundComponentsAndDeps.size() << "):\n";
+    lout << "\n";
     for( auto cmp : foundComponentsAndDeps )
     {
             lout << cmp << "\n";
     }
-
+    #endif
 
 
     return 0;
