@@ -53,7 +53,7 @@ nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
  
 
 
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -300,7 +300,5 @@ int main( int argc, char* argv[] )
 
     return 0;
 }
-
-// #include "src/gtest_main.cc"
 
 

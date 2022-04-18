@@ -1,5 +1,5 @@
 /*! \file
-    \brief Начинаем разбор OpenAPI спеки
+    \brief Как test013, но выводятся только списки "all used components"/"all found components". Нужно было только чтобы сравнить два списка
 */
 
 #include <iostream>
@@ -19,6 +19,8 @@
 #include <cstdlib>
 #include <exception>
 #include <stdexcept>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "umba/simple_formatter.h"
 
@@ -26,7 +28,9 @@
 
 #include "marty_swagger.h"
 
+#include "dependency_finder.h"
 
+#include "prj_utils.h"
 
 inline
 nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
@@ -59,6 +63,7 @@ int main( int argc, char* argv[] )
 
     #ifdef USE_EXACT_TEST
     
+        //INIT_TEST_INPUT_FILE_EX("openapi.yaml");
         INIT_TEST_INPUT_FILE_EX("swagger-example-tinkoff-openapi.yaml");
     
     #else
@@ -98,75 +103,69 @@ int main( int argc, char* argv[] )
     marty::json_utils::removePaths( apiSpecJson, removePathRegexes );
 
 
-    marty::swagger::OpenApiSpecObject apiSpec;
 
-    try
+
+    marty::swagger::DependencyFinder<std::string>  dependencyFinder;
+
+    std::set<std::string> foundComponents; // All found in 'components' section
+    std::set<std::string> foundComponentsInPaths;
+
+    marty::swagger::findComponents( apiSpecJson, dependencyFinder, &foundComponents, &foundComponentsInPaths );
+
+
+
+
+    //----------------------------------------------------------------------------
+    std::set<std::string> foundComponentsAndDeps;
+    std::set<std::string> foundComponentsInPathsAndDeps;
+
+
+
+    //----------------------------------------------------------------------------
+
+    auto allUsedDeps = dependencyFinder.getAllDependencies(foundComponentsInPaths, true);
+    for( auto cmp : allUsedDeps )
     {
-        apiSpec = apiSpecJson.get<marty::swagger::OpenApiSpecObject>();
-        //lout << "Data extracted" << endl;
-
-        {
-            nlohmann::json jNew = apiSpec;
-           
-            // auto jDiff = nlohmann::json::diff( j, jNew );
-           
-           
-            // lout << width(2) << jDiff;
-            // lout << "\n--------------------\n";
-
-            //lout << width(2) << tmpJson;
-            //lout << "\n--------------------\n";
-            //lout << width(2) << jNew;
-        }
-
-
-    }
-    catch(const std::exception &e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << "JSON:" << std::endl;
-        std::cerr << tmpJson << std::endl;
+        foundComponentsInPathsAndDeps.insert(cmp);
+        //auto deps = dependencyFinder.getAllDependencies(cmp);
     }
 
 
-    // apiSpec.paths      - Типы вида XXXRequest/Response
+    marty::swagger::findComponents( apiSpecJson, dependencyFinder, &foundComponents, &foundComponentsInPaths );
+    auto allFoundDeps = dependencyFinder.getAllDependencies(foundComponents, true);
 
-    // apiSpec.components.schemas - SchemaObject
-
-    // apiSpec.components.schemas[N].items          - PropertyItemObject
-    //                              . properties    - PropertyObject
-
-
-    // Собираем зависимости
-    
-    auto componentsSchemas = apiSpecJson[makeJsonPointer("components/schemas")];
-
-    // lout << "--- componentsSchemas:\n";
-    // lout << width(2) << componentsSchemas;
-    // lout << "\n--------------------\n";
-
-
-    if (!marty::json_utils::isObjectNode(componentsSchemas))
+    for( auto cmp : allFoundDeps )
     {
-        lout << "componentsSchemas is not an object, but is a '" << marty::json_utils::nodeTypeName(componentsSchemas) << "'\n";
-        return 1;
+        foundComponentsAndDeps.insert(cmp);
+        //auto deps = dependencyFinder.getAllDependencies(cmp);
     }
 
 
-    for (nlohmann::json::iterator it=componentsSchemas.begin(); it!=componentsSchemas.end(); ++it)
-    {
-        auto childPath = "components/schemas/" + it.key();
-        lout << "\n--- " << childPath << "\n";
-        lout << width(2) << it.value();
-        lout << "\n--------------------\n";
 
-        // Если properties.SomeProp.type: array, то properties.SomeProp.items - тип элемента
-        // В итоге бы хорошо обойтись без промежуточного объекта
+    //----------------------------------------------------------------------------
+
+    // auto allUsedDeps  = dependencyFinder.getAllDependencies(foundComponentsInPaths, true);
+    // auto allFoundDeps = dependencyFinder.getAllDependencies(foundComponents, true);
+
+    printSectionHeader("List of all used components in order to declare", (int)foundComponentsInPathsAndDeps.size(), true);
+
+    for( auto cmp : foundComponentsInPathsAndDeps )
+    {
+            lout << cmp << "\n";
     }
 
+
+    printSectionHeader("List of all found components in order to declare", (int)foundComponentsAndDeps.size());
+
+    for( auto cmp : foundComponentsAndDeps )
+    {
+            lout << cmp << "\n";
+    }
 
 
     return 0;
 }
+
+// #include "src/gtest_main.cc"
 
 

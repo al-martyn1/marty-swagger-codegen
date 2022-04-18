@@ -30,7 +30,7 @@
 
 #include "dependency_finder.h"
 
-
+#include "prj_utils.h"
 
 inline
 nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
@@ -53,7 +53,7 @@ nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
  
 
 
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -111,20 +111,6 @@ int main( int argc, char* argv[] )
     std::set<std::string> foundComponentsInPaths;
 
     marty::swagger::findComponents( apiSpecJson, dependencyFinder, &foundComponents, &foundComponentsInPaths );
-
-
-    auto printSectionHeader = [&]( const char *title, int szFound = -1, bool bFirst = false )
-        {
-            if (!bFirst)
-                lout << "\n\n#----------------------------------------------------------------------------\n";
-
-            lout << "### "<<title;
-
-            if (szFound>=0)
-                lout << " (Total: " << szFound << ")";
-
-            lout << ":\n\n";
-        };
 
 
 
@@ -224,35 +210,6 @@ int main( int argc, char* argv[] )
 
     }
 
-
-    // Нужно было только чтобы сравнить два списка
-    #if 0
-    lout << "\n";
-    lout << "\n";
-    lout << "#----------------------------------------------------------------------------\n";
-    lout << "### List of all used components in order to declare (Total: " << foundComponentsInPathsAndDeps.size() << "):\n";
-    lout << "\n";
-    for( auto cmp : foundComponentsInPathsAndDeps )
-    {
-            lout << cmp << "\n";
-    }
-
-
-    lout << "\n";
-    lout << "\n";
-    lout << "#----------------------------------------------------------------------------\n";
-    lout << "### List of all found components in order to declare (Total: " << foundComponentsAndDeps.size() << "):\n";
-    lout << "\n";
-    for( auto cmp : foundComponentsAndDeps )
-    {
-            lout << cmp << "\n";
-    }
-    #endif
-
-
     return 0;
 }
-
-// #include "src/gtest_main.cc"
-
 
