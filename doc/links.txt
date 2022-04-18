@@ -38,3 +38,15 @@ nlohmann::json Q/A
   Discussions - https://github.com/nlohmann/json/discussions
   How to get string value from a number? - https://github.com/nlohmann/json/discussions/3432
   Is there a way to preserve the order of elements in an object? - https://github.com/nlohmann/json/discussions/3438
+
+
+Swagger – это?
+API Projector
+Schemathesis – убийца API - https://habr.com/ru/post/647957/
+
+Node.js: документирование и визуализация API с помощью Swagger
+  https://habr.com/ru/company/timeweb/blog/594081/
+
+Node.js: шаблон сервера для аутентификации и авторизации
+   https://habr.com/ru/company/timeweb/blog/593063/
+
