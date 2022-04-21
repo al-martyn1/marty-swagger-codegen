@@ -1,5 +1,5 @@
 /*! \file
-    \brief РљР°Рє test013, РЅРѕ РІС‹РІРѕРґСЏС‚СЃСЏ С‚РѕР»СЊРєРѕ СЃРїРёСЃРєРё "all used components"/"all found components". РќСѓР¶РЅРѕ Р±С‹Р»Рѕ С‚РѕР»СЊРєРѕ С‡С‚РѕР±С‹ СЃСЂР°РІРЅРёС‚СЊ РґРІР° СЃРїРёСЃРєР°
+    \brief Вывод списка найденных компонентов с учётом количества зависимостей
 */
 
 #include <iostream>
@@ -104,19 +104,33 @@ int main( int argc, char* argv[] )
 
     //----------------------------------------------------------------------------
 
-    printSectionHeader("List of all used components", (int)allUsedDeps.size(), bFirst);
+    std::vector< std::vector<std::string> > allUsedInOrderToDeclareItemDeps;
+    std::vector<std::string> allUsedInOrderToDeclare
+         = dependencyFinder.getSortedByDependenciesCount( allUsedDeps
+                                                        , &allUsedInOrderToDeclareItemDeps
+                                                        );
+    printSectionHeader("List of all used components in order to declare (with own deps)", (int)allUsedInOrderToDeclare.size(), bFirst);
 
-    for( auto cmp : allUsedDeps )
+    for( auto i=0u; i!=allUsedInOrderToDeclare.size(); ++i)
     {
-        lout << cmp << "\n";
+        const auto &cmp = allUsedInOrderToDeclare[i];
+        printNameAndDeps( cmp, allUsedInOrderToDeclareItemDeps[i], 46 );
+        lout << "\n";
     }
 
 
-    printSectionHeader("List of all found components", (int)allFoundDeps.size());
+    std::vector< std::vector<std::string> > allFoundInOrderToDeclareItemDeps;
+    std::vector<std::string> allFoundInOrderToDeclare
+         = dependencyFinder.getSortedByDependenciesCount(  allFoundDeps
+                                                        , &allFoundInOrderToDeclareItemDeps
+                                                        );
+    printSectionHeader("List of all found components in order to declare (with own deps)", (int)allFoundInOrderToDeclareItemDeps.size());
 
-    for( auto cmp : allFoundDeps )
+    for( auto i=0u; i!=allFoundInOrderToDeclare.size(); ++i)
     {
-        lout << cmp << "\n";
+        const auto &cmp = allFoundInOrderToDeclare[i];
+        printNameAndDeps( cmp, allFoundInOrderToDeclareItemDeps[i], 46 );
+        lout << "\n";
     }
 
 

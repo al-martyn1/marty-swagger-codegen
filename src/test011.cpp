@@ -28,24 +28,6 @@
 
 
 
-inline
-nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
-{
-    if (!path.empty() && path[0]!='/')
-        return nlohmann::json_pointer<nlohmann::json>(std::string("/")+path);
-    return nlohmann::json_pointer<nlohmann::json>(path);
-}
-
-inline
-nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
-{
-    if (!path)
-        //return nlohmann::json_pointer<json>();
-        makeJsonPointer(std::string());
-
-    return makeJsonPointer(std::string(path));
-}
-
  
 
 
@@ -122,7 +104,7 @@ int main( int argc, char* argv[] )
     lout << "Found refs:\n\n";
     for( auto matchedPath : matchedPaths )
     {
-        auto refValFull = marty::json_utils::getScalarStr(apiSpecJson[makeJsonPointer(matchedPath)]);
+        auto refValFull = marty::json_utils::getScalarStr(apiSpecJson[marty::json_utils::makeJsonPointer(matchedPath)]);
              refValFull = marty::swagger::util::unquoteSimpleQuoted(refValFull); // umba::string_plus::unquoteSimpleQuoted - тоже самое; 
                                                 //TODO: !!! надо бы сделать туда ещё разбор CSV строки
         auto refVal     = marty::swagger::util::getRefValue(refValFull);

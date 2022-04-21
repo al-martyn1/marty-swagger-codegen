@@ -1,5 +1,8 @@
 #pragma once
 
+
+static const bool bFirst = true;
+
 inline
 void printSectionHeader ( const char *title, int szFound = -1, bool bFirst = false )
 {

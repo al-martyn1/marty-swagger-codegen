@@ -130,6 +130,12 @@ public:
     }
 
     //------------------------------
+
+    static const bool addSourceNamesToResult = true ;
+    static const bool addOonlyDependencies   = false;
+
+    //------------------------------
+
     template<typename IteratorType, typename DereferencerType>
     std::vector<StringType> getAllDependencies( IteratorType namesBegin, IteratorType namesEnd
                                               , DereferencerType dereferencer
@@ -193,10 +199,10 @@ public:
     }
 
 
-    // Упорядочиваем имена (уже в порядке по зависимостям относительно друг друга) по возрастанию количества зависимостей
-    std::vector<StringType> getSortedByDependenciesCountAscending( const std::vector<StringType> &names
-                                                                 , std::vector< std::vector<StringType> > *pDeps
-                                                                 ) const
+    //! Упорядочиваем имена (уже в порядке по зависимостям относительно друг друга) по возрастанию количества зависимостей
+    std::vector<StringType> getSortedByDependenciesCount( const std::vector<StringType> &names
+                                                        , std::vector< std::vector<StringType> > *pDeps
+                                                        ) const
     {
         struct NameWithDependencies
         {

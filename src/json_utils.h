@@ -157,6 +157,30 @@ bool isObjectNode( const nlohmann::json &jNode )
 
 
 //----------------------------------------------------------------------------
+inline
+nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
+{
+    if (!path.empty() && path[0]!='/')
+        return nlohmann::json_pointer<nlohmann::json>(std::string("/")+path);
+    return nlohmann::json_pointer<nlohmann::json>(path);
+}
+
+inline
+nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
+{
+    if (!path)
+        //return nlohmann::json_pointer<json>();
+        makeJsonPointer(std::string());
+
+    return makeJsonPointer(std::string(path));
+}
+//----------------------------------------------------------------------------
+
+
+
+
+
+//----------------------------------------------------------------------------
 enum class FileFormat
 {
     unknown = 0,

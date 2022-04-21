@@ -1,0 +1,38 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <ItemGroup>
+    <ClCompile Include="..\_libs\yaml-cpp\src\binary.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\convert.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\depthguard.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\directives.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\emit.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\emitfromevents.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\emitter.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\emitterstate.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\emitterutils.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\exceptions.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\exp.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\memory.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\node.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\node_data.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\nodebuilder.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\nodeevents.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\null.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\ostream_wrapper.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\parse.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\parser.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\regex_yaml.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\scanner.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\scanscalar.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\scantag.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\scantoken.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\simplekey.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\singledocparser.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\stream.cpp" />
+    <ClCompile Include="..\_libs\yaml-cpp\src\tag.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\_libs\yaml-cpp\src\contrib\yaml-cpp.natvis" />
+  </ItemGroup>
+
+</Project>

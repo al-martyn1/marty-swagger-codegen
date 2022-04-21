@@ -28,28 +28,8 @@
 
 
 
-inline
-nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const std::string &path)
-{
-    if (!path.empty() && path[0]!='/')
-        return nlohmann::json_pointer<nlohmann::json>(std::string("/")+path);
-    return nlohmann::json_pointer<nlohmann::json>(path);
-}
 
-inline
-nlohmann::json_pointer<nlohmann::json> makeJsonPointer(const char* path)
-{
-    if (!path)
-        //return nlohmann::json_pointer<json>();
-        makeJsonPointer(std::string());
-
-    return makeJsonPointer(std::string(path));
-}
-
- 
-
-
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 
 int main( int argc, char* argv[] )
@@ -139,7 +119,7 @@ int main( int argc, char* argv[] )
 
     // Собираем зависимости
     
-    auto componentsSchemas = apiSpecJson[makeJsonPointer("components/schemas")];
+    auto componentsSchemas = apiSpecJson[marty::json_utils::makeJsonPointer("components/schemas")];
 
     // lout << "--- componentsSchemas:\n";
     // lout << width(2) << componentsSchemas;

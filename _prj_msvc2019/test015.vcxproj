@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D66975DB-7E59-4BE8-AD8D-C13E9B858F44}</ProjectGuid>
+    <ProjectGuid>{001634AE-5567-412E-ACEC-6EC488026C66}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
 
@@ -10,7 +10,7 @@
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_project_configurations.props" />
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_msvcver.props" />
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_prjdirs.props" />
-  <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_target_utility.props" />
+  <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_target_console.props" />
   <Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_config_matrix_common.props" />
   <!--Import Project="$(ProjectDir)\..\_prj_msvc_common\umba_config_matrix_qt.props" /-->
 
@@ -43,7 +43,16 @@
   </ItemDefinitionGroup>
 
 
+  <Import Project=".\yaml_cpp.props" />
+
+  <ItemGroup>
+    <ClCompile Include="..\src\test015.cpp" />
+    <ClCompile Include="..\_libs\sfmt\umba_lout.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 </Project>
