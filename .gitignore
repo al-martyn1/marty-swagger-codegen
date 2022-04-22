@@ -35,3 +35,4 @@
 /doc/OAI-OpenAPI-Specification-b4cc425
 /tests/APIs_log
 /tests/*.log
+/_prj_msvc/*.user

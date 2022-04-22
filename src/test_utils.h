@@ -11,7 +11,7 @@
 
 
 #ifdef _MSC_VER
-    #pragma comment(lib, "_gtest.lib")
+    //#pragma comment(lib, "_gtest.lib")
     //#pragma comment(lib, "_gmock.lib")
 #endif
 

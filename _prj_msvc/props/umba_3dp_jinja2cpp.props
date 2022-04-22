@@ -1,0 +1,28 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- 
+      Set up user/system environment vars:
+      JINJA2CPP_BUILT_ROOT=D:\Jinja2Cpp
+    -->
+
+  <!-- umba_common.props must be included first -->
+
+  <PropertyGroup>
+    <JINJA2CPP_TOOLSET_PLATFORM_CONFIG_ROOT>$(JINJA2CPP_BUILT_ROOT)\$(UMBA_TOOLSET_PLATFORM_CONFIG_ROOT)</JINJA2CPP_TOOLSET_PLATFORM_CONFIG_ROOT>
+    <JINJA2CPP_INC>$(JINJA2CPP_TOOLSET_PLATFORM_CONFIG_ROOT)\include</JINJA2CPP_INC>
+    <JINJA2CPP_LIB>$(JINJA2CPP_TOOLSET_PLATFORM_CONFIG_ROOT)\lib;$(JINJA2CPP_TOOLSET_PLATFORM_CONFIG_ROOT)\lib\static</JINJA2CPP_LIB>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(JINJA2CPP_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(JINJA2CPP_LIB);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>jinja2cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+
+
+</Project>
