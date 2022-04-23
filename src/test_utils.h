@@ -44,6 +44,15 @@ std::string getCurTestName(const char *argv0)
 }
 
 //----------------------------------------------------------------------------
+template <typename StringType> inline bool startsWith( const StringType &str, const StringType &prefix )
+{
+    if (str.size()<prefix.size())
+        return false;
+
+    return str.compare( 0, prefix.size(), prefix )==0;
+}
+
+//----------------------------------------------------------------------------
 inline
 std::string getCurTestInputName(const char *argv0, const char *inputName = 0)
 {
@@ -56,7 +65,10 @@ std::string getCurTestInputName(const char *argv0, const char *inputName = 0)
 
     if (!inputNameStr.empty())
     {
-        testName += "_" + inputNameStr;
+        if (!startsWith(inputNameStr,testName))
+            testName += "_" + inputNameStr;
+        else
+            testName  =       inputNameStr;
     }
 
     if (inputNameStr.find_first_of('.')==inputNameStr.npos)
@@ -87,7 +99,7 @@ std::string getCurTestInputName(const char *argv0, const char *inputName = 0)
                fileIn.open(inputName, std::ios_base::in);                                 \
                if (!fileIn)                                                               \
                {                                                                          \
-                   std::cerr << "Failed to open input file: " << inputName << std::endl;  \
+                   std::cerr << "Failed to open input file: " << inputName << ", test name base: " << getCurTestName(argv[0]) << std::endl;  \
                    std::exit(1);                                                          \
                }                                                                          \
             }                                                                             \

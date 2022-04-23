@@ -1,0 +1,15 @@
+testStruct.intValue     (1)    : {{ testStruct.intValue            }}
+testStruct.intEvenValue (1)    : {{ testStruct.intEvenValue        }}{% do setIntValueAsStr('4') %}{#% do testStruct.intValue = 4 %#}
+testStruct.intValue     (2)    : {{ testStruct.intValue            }}
+testStruct.intEvenValue (2)    : {{ testStruct.intEvenValue        }}{% do setIntValue(5) %}
+testStruct.intValue     (3)    : {{ testStruct.intValue            }}
+testStruct.intEvenValue (3)    : {{ testStruct.intEvenValue        }}{#% testStruct.intValue = 6 not works %#}
+testStruct.intValue     (4)    : {{ testStruct.intValue            }}
+testStruct.intEvenValue (4)    : {{ testStruct.intEvenValue        }}
+testStruct.dblValue            : {{ testStruct.dblValue            }}
+testStruct.boolValue           : {{ testStruct.boolValue           }}
+testStruct.strValue            : {{ testStruct.strValue            }}
+testStruct.wstrValue           : {{ testStruct.wstrValue           }}
+testStruct.strViewValue        : {{ testStruct.strViewValue        }}
+testStruct.wstrViewValue       : {{ testStruct.wstrViewValue       }}
+testStruct.innerStruct.strValue: {{ testStruct.innerStruct.strValue}}

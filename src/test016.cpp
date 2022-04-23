@@ -1,5 +1,5 @@
 /*! \file
-    \brief [ ]
+    \brief "Hello World" при помощи Jinja2Cpp
 */
 
 #include <iostream>

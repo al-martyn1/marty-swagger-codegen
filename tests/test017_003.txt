@@ -1,0 +1,2 @@
+{{ data.strValue }}{% do setData('Inner Value') %}
+{{ data.strValue }}

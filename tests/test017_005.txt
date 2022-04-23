@@ -1,0 +1,2 @@
+testStruct.strings             :{% for listItem in testStruct.strings %}
+    item: {{ listItem }}{% endfor %}

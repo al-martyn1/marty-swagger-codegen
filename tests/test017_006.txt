@@ -1,0 +1,3 @@
+testStruct.innerStructList     :{% for listItem in testStruct.innerStructList %}
+      {{ listItem.strValue }}{% endfor %}
+

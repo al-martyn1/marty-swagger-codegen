@@ -1,5 +1,5 @@
 /*! \file
-    \brief [ ]
+    \brief Описание
 */
 
 #include <iostream>
@@ -25,6 +25,12 @@
 #include "umba/simple_formatter.h"
 
 #include "test_utils.h"
+
+#include "jinja2cpp/template.h"
+#include "jinja2cpp/template_env.h"
+#include "jinja2cpp/reflected_value.h"
+#include "jinja2cpp/user_callable.h"
+
 
  
 using namespace std;
