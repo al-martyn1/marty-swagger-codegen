@@ -1,0 +1,1 @@
+@call ..\run_test.bat test016 %* >test016.log 2>&1

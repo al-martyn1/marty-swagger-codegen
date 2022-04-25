@@ -1,15 +1,59 @@
-testStruct.intValue     (1)    : {{ testStruct.intValue            }}
-testStruct.intEvenValue (1)    : {{ testStruct.intEvenValue        }}{% do setIntValueAsStr('4') %}{#% do testStruct.intValue = 4 %#}
-testStruct.intValue     (2)    : {{ testStruct.intValue            }}
-testStruct.intEvenValue (2)    : {{ testStruct.intEvenValue        }}{% do setIntValue(5) %}
-testStruct.intValue     (3)    : {{ testStruct.intValue            }}
-testStruct.intEvenValue (3)    : {{ testStruct.intEvenValue        }}{#% testStruct.intValue = 6 not works %#}
-testStruct.intValue     (4)    : {{ testStruct.intValue            }}
-testStruct.intEvenValue (4)    : {{ testStruct.intEvenValue        }}
-testStruct.dblValue            : {{ testStruct.dblValue            }}
-testStruct.boolValue           : {{ testStruct.boolValue           }}
-testStruct.strValue            : {{ testStruct.strValue            }}
-testStruct.wstrValue           : {{ testStruct.wstrValue           }}
-testStruct.strViewValue        : {{ testStruct.strViewValue        }}
-testStruct.wstrViewValue       : {{ testStruct.wstrViewValue       }}
-testStruct.innerStruct.strValue: {{ testStruct.innerStruct.strValue}}
+{% meta %}{
+    "stringValue": "Hello!",
+    "subObject": {
+        "intValue": 10,
+        "array": [1, 2, 3, 4, 5]
+    }
+}{% endmeta %}
+
+hasJson                          : {{ hasJson }}
+isOpenApiSpec                    : {{ isOpenApiSpec }}
+specFormat                       : {{ specFormat }}
+specTypes (1){% for typeSpec in specTypes %}
+    specTypes.item: {{ typeSpec | tojson }}
+        {#{ json.components.schemas[typeSpec] | tojson }#}
+    {% endfor %}
+
+{# specTypes (2)                    : {{ specTypes | tojson }} #}
+{# json                             : {{ json | tojson }}  #}
+json.openapi                     : {{ json.openapi }}
+components                       : {{ json.components.schemas | tojson }}
+
+
+stringValue                      : {{ stringValue }}
+subObject.intValue               : {{ subObject.intValue }}
+subObject.array                  : {{ subObject.array }}
+
+testStruct.intValue     (1)      : {{ testStruct.intValue            }}
+testStruct.intEvenValue (1)      : {{ testStruct.intEvenValue        }}{% do setIntValueAsStr('4') %}{#% do testStruct.intValue = 4 %#}
+testStruct.intValue     (2)      : {{ testStruct.intValue            }}
+testStruct.intEvenValue (2)      : {{ testStruct.intEvenValue        }}{% do setIntValue(5) %}
+testStruct.intValue     (3)      : {{ testStruct.intValue            }}
+testStruct.intEvenValue (3)      : {{ testStruct.intEvenValue        }}{#% testStruct.intValue = 6 not works %#}
+testStruct.intValue     (4)      : {{ testStruct.intValue            }}
+testStruct.intEvenValue (4)      : {{ testStruct.intEvenValue        }}
+testStruct.dblValue              : {{ testStruct.dblValue            }}
+testStruct.boolValue             : {{ testStruct.boolValue           }}
+testStruct.strValue              : {{ testStruct.strValue            }}
+testStruct.wstrValue             : {{ testStruct.wstrValue           }}
+testStruct.strViewValue          : {{ testStruct.strViewValue        }}
+testStruct.wstrViewValue         : {{ testStruct.wstrViewValue       }}
+testStruct.innerStruct.strValue  : {{ testStruct.innerStruct.strValue}}
+
+testStruct.strings               :{% for listItem in testStruct.strings %}
+    item: {{ listItem }}{% endfor %}
+
+testStruct.innerStructList       :{% for listItem in testStruct.innerStructList %}
+      {{ listItem.strValue }}{% endfor %}
+
+testStruct.tmpStructList         :{% for listItem in testStruct.tmpStructList %}
+    item: {{ listItem.strValue }}{% endfor %}
+
+basicCallable (returns intValue, set) : {% set callable = testStruct.basicCallable %}{{ callable() }}
+basicCallable (immediatelly called): {{ testStruct.basicCallable() }}
+
+getter (returns innerStruct)     : {% set inner = testStruct.getInnerStruct() %}{{ inner.strValue }}
+
+innerStructValue                 : {{ testStruct.getInnerStructValue() | tojson(2) }}
+innerStructValue (set used)      : {% set innerStructValue = testStruct.getInnerStructValue() %}{{ innerStructValue.strValue }}
+{# innerStructValue (res field access): {{ testStruct.getInnerStructValue().strValue }} #}

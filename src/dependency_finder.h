@@ -201,7 +201,7 @@ public:
 
     //! Упорядочиваем имена (уже в порядке по зависимостям относительно друг друга) по возрастанию количества зависимостей
     std::vector<StringType> getSortedByDependenciesCount( const std::vector<StringType> &names
-                                                        , std::vector< std::vector<StringType> > *pDeps
+                                                        , std::vector< std::vector<StringType> > *pDeps = 0
                                                         ) const
     {
         struct NameWithDependencies

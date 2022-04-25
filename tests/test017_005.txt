@@ -1,2 +1,12 @@
-testStruct.strings             :{% for listItem in testStruct.strings %}
-    item: {{ listItem }}{% endfor %}
+{# https://jinja.palletsprojects.com/en/2.10.x/templates/#for #}
+{# specTypes (1){% for typeSpec in specTypes | reverse %} #}
+specTypes (1){% for typeSpec in specTypes %}
+    specTypes.item : {{ typeSpec }}
+        item idx   : {{ loop.index0 }} of {{ loop.length }} total
+        item ridx  : {{ loop.revindex0 }}
+        item.first : {{ loop.first }}
+        item.last  : {{ loop.last }}{#
+        item.json  : {{ json.components.schemas[typeSpec] | tojson }} #}
+    {% else %}
+        No items at all
+    {% endfor %}

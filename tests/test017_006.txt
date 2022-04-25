@@ -1,3 +1,7 @@
-testStruct.innerStructList     :{% for listItem in testStruct.innerStructList %}
-      {{ listItem.strValue }}{% endfor %}
-
+{#% include "myself.tpl" %#}
+{# https://stackoverflow.com/questions/45699660/jinja2-reverse-a-list #}
+specTypes (1){% for typeSpec in specTypes %}
+    specTypes.item : {{ typeSpec }}
+        item idx   : {{ loop.index0 }} of {{ loop.length }} total
+        item ridx  : {{ loop.revindex0 }}
+    {% endfor %}

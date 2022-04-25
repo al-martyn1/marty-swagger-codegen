@@ -123,8 +123,12 @@ struct TypeReflection<TestStruct> : TypeReflected<TestStruct>
                   assert(obj.isAlive);
                   using list_t = std::vector<std::shared_ptr<TestInnerStruct>>;
                   list_t vals;
-                  for (int n = 0; n < 10; ++n)
-                      vals.push_back(std::make_shared<TestInnerStruct>());
+                  for (int n = 0; n < 5/*5*/; ++n)
+                  {
+                      std::string newStr = std::string(std::to_string(n)) + std::string(" + ") + obj.strValue;
+                      TestInnerStruct testInnerStruct = { newStr }; // +obj.innerStructList[n].strValue
+                      vals.push_back(std::make_shared<TestInnerStruct>(testInnerStruct));
+                  }
                   return jinja2::Reflect(list_t(vals.begin(), vals.end()));
               } },
             { "basicCallable",

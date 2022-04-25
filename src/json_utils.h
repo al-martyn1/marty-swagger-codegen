@@ -320,6 +320,30 @@ nlohmann::json parseJsonOrYaml( std::istream &in
 }
 
 //----------------------------------------------------------------------------
+nlohmann::json parseJsonOrYamlFromFile( const std::string &fileName
+                              , bool allowComments = true
+                              , std::string *pErrMsg = 0
+                              , std::string *pTmpJson = 0
+                              , FileFormat *pDetectedFormat = 0
+                              )
+{
+    std::ifstream in(fileName.c_str());
+
+    if (!in)
+    {
+        if (pDetectedFormat)
+            *pDetectedFormat = FileFormat::unknown;
+
+        if (pErrMsg)
+            *pErrMsg = "Failed to open file '" + fileName + "'";
+
+        return nlohmann::json{};
+    }
+
+    return parseJsonOrYaml( in, allowComments, pErrMsg, pTmpJson, pDetectedFormat );
+}
+
+//----------------------------------------------------------------------------
 inline
 std::string makeIndentStr( int indent )
 {

@@ -1,0 +1,12 @@
+{#% include "myself.tpl" %#}
+{# https://stackoverflow.com/questions/45699660/jinja2-reverse-a-list #}
+{# specTypes (1){% for typeSpec in specTypes | sort(reverse=true) %} #}
+
+{% set specTypesReversed = specTypes | reverse %}
+
+
+specTypes (1){% for typeSpec in specTypes | unique %}
+    specTypes.item : {{ typeSpec }}
+        item idx   : {{ loop.index0 }} of {{ loop.length }} total
+        item ridx  : {{ loop.revindex0 }}
+    {% endfor %}
