@@ -2,7 +2,62 @@
 {# https://stackoverflow.com/questions/45699660/jinja2-reverse-a-list #}
 {# specTypes (1){% for typeSpec in specTypes | sort(reverse=true) %} #}
 
-{% set specTypesReversed = specTypes | reverse %}
+{#
+abs
+applymacro
+attr
+batch          https://ttl255.com/jinja2-tutorial-part-4-template-filters/#batch
+camelize
+capitalize
+center         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#center
+default        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#default
+d
+dictsort       https://ttl255.com/jinja2-tutorial-part-4-template-filters/#dictsort
+escape
+escapecpp
+first
+float          https://ttl255.com/jinja2-tutorial-part-4-template-filters/#float
+format
+groupby        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#groupby
+int            https://ttl255.com/jinja2-tutorial-part-4-template-filters/#int
+join           https://ttl255.com/jinja2-tutorial-part-4-template-filters/#join
+last
+length
+list
+lower
+map            https://ttl255.com/jinja2-tutorial-part-4-template-filters/#map
+max
+min
+pprint
+random
+reject         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#reject
+rejectattr     https://ttl255.com/jinja2-tutorial-part-4-template-filters/#rejectattr
+replace
+round
+reverse
+select         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#select
+selectattr     --//--
+slice
+sort
+striptags
+sum
+title
+tojson         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#tojson
+toxml
+toyaml
+trim
+truncate
+unique         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#unique
+upper
+urlencode
+wordcount
+wordwrap
+underscorize
+xmlattr
+#}
+
+
+{#% set specTypesReversed = specTypes | reverse %#}
 
 
 specTypes (1){% for typeSpec in specTypes | unique %}

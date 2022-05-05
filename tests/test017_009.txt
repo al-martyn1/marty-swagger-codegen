@@ -1,0 +1,57 @@
+{#
+        ToListMode,
+        AbsMode,
+        RoundMode,
+#}
+list          (  1.1  )        : {{    1.1    | list  }}
+float         (  1.9  )        : {{    1.9    | float }}
+float         (  2.1  )        : {{    2.1    | float }}
+float         ( -1.1  )        : {{   -1.1    | float }}
+float         ( -1.9  )        : {{   -1.9    | float }}
+float         ( -2.1  )        : {{   -2.1    | float }}
+list          ( "1.1" )        : {{   "1.1"   | list }}
+float         ( "1.9" )        : {{   "1.9"   | float }}
+float         ( "2.1" )        : {{   "2.1"   | float }}
+float         ("-1.1" )        : {{  "-1.1"   | float }}
+float         ("-1.9" )        : {{  "-1.9"   | float }}
+float         ("-2.1" )        : {{  "-2.1"   | float }}
+
+int           (  1.1  )        : {{    1.1    | int }}
+int           (  1.9  )        : {{    1.9    | int }}
+int           (  2.1  )        : {{    2.1    | int }}
+int           ( -1.1  )        : {{   -1.1    | int }}
+int           ( -1.9  )        : {{   -1.9    | int }}
+int           ( -2.1  )        : {{   -2.1    | int }}
+int           ( "1.1" )        : {{   "1.1"   | int }}
+int           ( "1.9" )        : {{   "1.9"   | int }}
+int           ( "2.1" )        : {{   "2.1"   | int }}
+int           ("-1.1" )        : {{  "-1.1"   | int }}
+int           ("-1.9" )        : {{  "-1.9"   | int }}
+int           ("-2.1" )        : {{  "-2.1"   | int }}
+
+int | float   (  1.1  )        : {{    1.1    | int | float }}
+int | float   (  1.9  )        : {{    1.9    | int | float }}
+int | float   (  2.1  )        : {{    2.1    | int | float }}
+int | float   ( -1.1  )        : {{   -1.1    | int | float }}
+int | float   ( -1.9  )        : {{   -1.9    | int | float }}
+int | float   ( -2.1  )        : {{   -2.1    | int | float }}
+int | float   ( "1.1" )        : {{   "1.1"   | int | float }}
+int | float   ( "1.9" )        : {{   "1.9"   | int | float }}
+int | float   ( "2.1" )        : {{   "2.1"   | int | float }}
+int | float   ("-1.1" )        : {{  "-1.1"   | int | float }}
+int | float   ("-1.9" )        : {{  "-1.9"   | int | float }}
+int | float   ("-2.1" )        : {{  "-2.1"   | int | float }}
+
+float | int   (  1.1  )        : {{    1.1    | float | int }}
+float | int   (  1.9  )        : {{    1.9    | float | int }}
+float | int   (  2.1  )        : {{    2.1    | float | int }}
+float | int   ( -1.1  )        : {{   -1.1    | float | int }}
+float | int   ( -1.9  )        : {{   -1.9    | float | int }}
+float | int   ( -2.1  )        : {{   -2.1    | float | int }}
+float | int   ( "1.1" )        : {{   "1.1"   | float | int }}
+float | int   ( "1.9" )        : {{   "1.9"   | float | int }}
+float | int   ( "2.1" )        : {{   "2.1"   | float | int }}
+float | int   ("-1.1" )        : {{  "-1.1"   | float | int }}
+float | int   ("-1.9" )        : {{  "-1.9"   | float | int }}
+float | int   ("-2.1" )        : {{  "-2.1"   | float | int }}
+

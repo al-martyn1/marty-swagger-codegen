@@ -1,0 +1,71 @@
+json.servers (json)       : {{ json.servers | tojson(2) }}
+
+json.servers (toyaml)     : {{ json.servers | toyaml(2) }}
+
+json.servers (toxml)      : {{ json.servers | toxml(2) }}
+
+
+specTypes (simple)        : {% for typeSpec in specTypes %}{{ typeSpec }} {% endfor %}
+
+specTypes (pprint)        : {% for typeSpec in specTypes %}{{ typeSpec | pprint }} {% endfor %}
+
+{# specTypes (lower)      : {% for typeSpec in specTypes | lower %}{{ typeSpec }} {% endfor %} #}
+
+specTypes (lower)         : {% for typeSpec in specTypes %}{{ typeSpec | lower }} {% endfor %}
+
+specTypes (upper)         : {% for typeSpec in specTypes %}{{ typeSpec | upper }} {% endfor %}
+
+specTypes (capitalize)    : {% for typeSpec in specTypes %}{{ typeSpec | capitalize }} {% endfor %}
+
+specTypes (camelize)      : {% for typeSpec in specTypes %}{{ typeSpec | camelize }} {% endfor %}
+
+specTypes (underscorize)  : {% for typeSpec in specTypes %}{{ typeSpec | underscorize }} {% endfor %}
+
+specTypes (escape)        : {% for typeSpec in specTypes %}{{ typeSpec | escape }} {% endfor %}
+
+specTypes (escapecpp)     : {% for typeSpec in specTypes %}{{ typeSpec | escapecpp }} {% endfor %}
+
+
+{#
+abs
+applymacro
+attr
+batch          https://ttl255.com/jinja2-tutorial-part-4-template-filters/#batch
+center         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#center
+default        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#default
+d
+dictsort       https://ttl255.com/jinja2-tutorial-part-4-template-filters/#dictsort
+first
+format
+groupby        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#groupby
+join           https://ttl255.com/jinja2-tutorial-part-4-template-filters/#join
+last
+length
+list
+map            https://ttl255.com/jinja2-tutorial-part-4-template-filters/#map
+max
+min
+pprint
+random
+reject         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#reject
+rejectattr     https://ttl255.com/jinja2-tutorial-part-4-template-filters/#rejectattr
+replace
+round
+reverse
+select         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#select
+selectattr     --//--
+slice
+sort
+striptags
+sum
+title
+trim
+truncate
+unique         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#unique
+urlencode
+wordcount
+wordwrap
+xmlattr
+#}
+
+

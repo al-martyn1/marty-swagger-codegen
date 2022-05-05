@@ -47,7 +47,7 @@ using namespace std;
 
 
 
-#define USE_EXACT_TEST
+// #define USE_EXACT_TEST
 
 int main( int argc, char* argv[] )
 {
@@ -166,10 +166,6 @@ int main( int argc, char* argv[] )
     jinja2::ValuesMap renderParams = 
     {   { "data"         , jinja2::Reflect(&innerStruct) }
       , { "testStruct"   , jinja2::Reflect(&testStruct)  }
-      , { "hasJson"      , jinja2::Reflect(&hasJson)     }
-      , { "isOpenApiSpec", jinja2::Reflect(&isOpenApiSpec)  }
-      , { "specFormat"   , jinja2::Reflect(&specFormat)  }
-      , { "specTypes"    , jinja2::Reflect(&foundTypes)  }
       , { "setData"      , jinja2::MakeCallable( [&innerStruct](const std::string& val) -> jinja2::Value
                                                  {
                                                      innerStruct.strValue = val;
@@ -252,7 +248,7 @@ int main( int argc, char* argv[] )
         foundTypes = dependencyFinder.getSortedByDependenciesCount(  allFoundDeps
                                                         // , &allFoundInOrderToDeclareItemDeps
                                                         );
-        renderParams["specTypes"] = jinja2::Reflect(&foundTypes);
+        
 
         // , { "isOpenApiSpec", jinja2::Reflect(&isOpenApiSpec)  }
 
@@ -260,13 +256,17 @@ int main( int argc, char* argv[] )
         if (apiSpecTest.openapi && !apiSpecTest.openapi->empty())
         {
             isOpenApiSpec = true;
-            renderParams["isOpenApiSpec"] = jinja2::Reflect(&isOpenApiSpec);
+            
         }
 
         renderParams["json"] = jinja2::Reflect(std::move(j));
 
     }
 
+    renderParams["hasJson"]       = jinja2::Reflect(&hasJson);
+    renderParams["isOpenApiSpec"] = jinja2::Reflect(&isOpenApiSpec);
+    renderParams["specFormat"]    = jinja2::Reflect(&specFormat);
+    renderParams["specTypes"] = jinja2::Reflect(&foundTypes);
 
 
     try

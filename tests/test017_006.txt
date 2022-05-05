@@ -1,5 +1,8 @@
 {#% include "myself.tpl" %#}
 {# https://stackoverflow.com/questions/45699660/jinja2-reverse-a-list #}
+
+{{ [3, 1, 2] | reverse }}
+
 specTypes (1){% for typeSpec in specTypes %}
     specTypes.item : {{ typeSpec }}
         item idx   : {{ loop.index0 }} of {{ loop.length }} total
