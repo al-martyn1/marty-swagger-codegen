@@ -1,0 +1,8 @@
+ints: {{ ints | pprint }}
+strs: {{ strs | pprint }}
+
+ints rev: {{ ints | reverse | pprint }}
+strs rev: {{ strs | reverse | pprint }}
+
+ints len: {{ ints | length }}
+strs len: {{ strs | length }}

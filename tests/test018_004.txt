@@ -1,0 +1,35 @@
+{% set enumNameStyle ='pascal' -%}
+{% set enumValueStyle='camel'  -%}
+{% set namespace = 'test/swagger::TinkoffOpenAPI'  -%}
+{# -#}
+{% set namespace = namespace|replace(old='::',new='/') -%}
+{% set namespace = namespace|replace(old='\\',new='/') -%}
+{% set namespaceList = namespace|split('/') -%}
+
+// namespace (full): {{ namespace}}
+{% for ns in namespaceList %}
+namespace {{ns}} {
+{%- endfor -%}
+
+
+{# -#}
+{# -#}
+{# -#}
+{% for ComponentTypeName in ComponentTypes %}{% set TypeSpec = components[ComponentTypeName] -%}
+// TypeName: {{ ComponentTypeName }}
+// {{ TypeSpec | tojson }}
+{% if TypeSpec['enum'] %}
+enum class {{ ComponentTypeName | ident(enumNameStyle) }}
+{   invalid = 0
+{% for enumItem in TypeSpec['enum'] -%}
+  , {{ enumItem | ident(enumValueStyle) }} = {{ loop.index }}
+{% endfor -%}
+};
+{% endif %}{# if TypeSpec['enum'] #}
+
+{% endfor %}{# for ComponentTypeName in ComponentTypes #}
+
+
+{% for ns in namespaceList | reverse %}
+} // namespace {{ns}}{% endfor -%}
+

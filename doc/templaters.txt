@@ -8,6 +8,10 @@
 Jinja2 в мире C++, часть вторая. Рендеринг                   - https://habr.com/ru/post/419011/
 Jinja2 в мире C++, часть третья. «Теперь ты в конане»        - https://habr.com/ru/post/491426/
 
+
+Flex Ferrum скончался - https://forum.sources.ru/index.php?showtopic=418493
+
+
 Метапрограммирование в C++ и русская литература: через страдания к просветлению
   https://habr.com/ru/article/448466/
 

@@ -1,12 +1,18 @@
-{# https://jinja.palletsprojects.com/en/2.10.x/templates/#for #}
-{# specTypes (1){% for typeSpec in specTypes | reverse %} #}
+{# https://jinja.palletsprojects.com/en/2.10.x/templates/#for -#}
+{# specTypes (1){% for typeSpec in specTypes | reverse %} -#}
+{{ "-- Loop meta's --" | center(32) }}
 specTypes (1){% for typeSpec in specTypes %}
-    specTypes.item : {{ typeSpec }}
-        item idx   : {{ loop.index0 }} of {{ loop.length }} total
-        item ridx  : {{ loop.revindex0 }}
-        item.first : {{ loop.first }}
-        item.last  : {{ loop.last }}{#
-        item.json  : {{ json.components.schemas[typeSpec] | tojson }} #}
+    specTypes.item   : {{ typeSpec }}
+        item idx     : {{ loop.index0 }} of {{ loop.length }} total
+        item ridx    : {{ loop.revindex0 }}
+        item depth   : {{ loop.depth0 }}
+        item var     : {{ loop.var }}
+        item cycle   : {{ loop.cycle }}
+        item previtem: {{ loop.previtem | pprint }}
+        item nextitem: {{ loop.nextitem | pprint }}
+        item.first   : {{ loop.first }}
+        item.last    : {{ loop.last }}{#
+        item.json    : {{ json.components.schemas[typeSpec] | tojson }} #}
     {% else %}
         No items at all
     {% endfor %}

@@ -1,67 +1,81 @@
-{#% include "myself.tpl" %#}
-{# https://stackoverflow.com/questions/45699660/jinja2-reverse-a-list #}
-{# specTypes (1){% for typeSpec in specTypes | sort(reverse=true) %} #}
+list          (  1.1  )        : {{    1.1    | list  }}
+list | pprint (  1.1  )        : {{    1.1    | list | pprint }}
 
-{#
-abs
-applymacro
-attr
-batch          https://ttl255.com/jinja2-tutorial-part-4-template-filters/#batch
-camelize
-capitalize
-center         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#center
-default        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#default
-d
-dictsort       https://ttl255.com/jinja2-tutorial-part-4-template-filters/#dictsort
-escape
-escapecpp
-first
-float          https://ttl255.com/jinja2-tutorial-part-4-template-filters/#float
-format
-groupby        https://ttl255.com/jinja2-tutorial-part-4-template-filters/#groupby
-int            https://ttl255.com/jinja2-tutorial-part-4-template-filters/#int
-join           https://ttl255.com/jinja2-tutorial-part-4-template-filters/#join
-last
-length
-list
-lower
-map            https://ttl255.com/jinja2-tutorial-part-4-template-filters/#map
-max
-min
-pprint
-random
-reject         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#reject
-rejectattr     https://ttl255.com/jinja2-tutorial-part-4-template-filters/#rejectattr
-replace
-round
-reverse
-select         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#select
-selectattr     --//--
-slice
-sort
-striptags
-sum
-title
-tojson         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#tojson
-toxml
-toyaml
-trim
-truncate
-unique         https://ttl255.com/jinja2-tutorial-part-4-template-filters/#unique
-upper
-urlencode
-wordcount
-wordwrap
-underscorize
-xmlattr
-#}
+float         (  1.1  )        : {{    1.1    | float }}
+float         (  1.9  )        : {{    1.9    | float }}
+float         (  2.1  )        : {{    2.1    | float }}
+float         ( -1.1  )        : {{   -1.1    | float }}
+float         ( -1.9  )        : {{   -1.9    | float }}
+float         ( -2.1  )        : {{   -2.1    | float }}
+float         ( "1.1" )        : {{   "1.1"   | float }}
+float         ( "1.9" )        : {{   "1.9"   | float }}
+float         ( "2.1" )        : {{   "2.1"   | float }}
+float         ("-1.1" )        : {{  "-1.1"   | float }}
+float         ("-1.9" )        : {{  "-1.9"   | float }}
+float         ("-2.1" )        : {{  "-2.1"   | float }}
 
+int           (  1.1  )        : {{    1.1    | int }}
+int           (  1.9  )        : {{    1.9    | int }}
+int           (  2.1  )        : {{    2.1    | int }}
+int           ( -1.1  )        : {{   -1.1    | int }}
+int           ( -1.9  )        : {{   -1.9    | int }}
+int           ( -2.1  )        : {{   -2.1    | int }}
+int           ( "1.1" )        : {{   "1.1"   | int }}
+int           ( "1.9" )        : {{   "1.9"   | int }}
+int           ( "2.1" )        : {{   "2.1"   | int }}
+int           ("-1.1" )        : {{  "-1.1"   | int }}
+int           ("-1.9" )        : {{  "-1.9"   | int }}
+int           ("-2.1" )        : {{  "-2.1"   | int }}
 
-{#% set specTypesReversed = specTypes | reverse %#}
+int | float   (  1.1  )        : {{    1.1    | int | float }}
+int | float   (  1.9  )        : {{    1.9    | int | float }}
+int | float   (  2.1  )        : {{    2.1    | int | float }}
+int | float   ( -1.1  )        : {{   -1.1    | int | float }}
+int | float   ( -1.9  )        : {{   -1.9    | int | float }}
+int | float   ( -2.1  )        : {{   -2.1    | int | float }}
+int | float   ( "1.1" )        : {{   "1.1"   | int | float }}
+int | float   ( "1.9" )        : {{   "1.9"   | int | float }}
+int | float   ( "2.1" )        : {{   "2.1"   | int | float }}
+int | float   ("-1.1" )        : {{  "-1.1"   | int | float }}
+int | float   ("-1.9" )        : {{  "-1.9"   | int | float }}
+int | float   ("-2.1" )        : {{  "-2.1"   | int | float }}
 
+float | int   (  1.1  )        : {{    1.1    | float | int }}
+float | int   (  1.9  )        : {{    1.9    | float | int }}
+float | int   (  2.1  )        : {{    2.1    | float | int }}
+float | int   ( -1.1  )        : {{   -1.1    | float | int }}
+float | int   ( -1.9  )        : {{   -1.9    | float | int }}
+float | int   ( -2.1  )        : {{   -2.1    | float | int }}
+float | int   ( "1.1" )        : {{   "1.1"   | float | int }}
+float | int   ( "1.9" )        : {{   "1.9"   | float | int }}
+float | int   ( "2.1" )        : {{   "2.1"   | float | int }}
+float | int   ("-1.1" )        : {{  "-1.1"   | float | int }}
+float | int   ("-1.9" )        : {{  "-1.9"   | float | int }}
+float | int   ("-2.1" )        : {{  "-2.1"   | float | int }}
 
-specTypes (1){% for typeSpec in specTypes | unique %}
-    specTypes.item : {{ typeSpec }}
-        item idx   : {{ loop.index0 }} of {{ loop.length }} total
-        item ridx  : {{ loop.revindex0 }}
-    {% endfor %}
+float         (  1.1  )        : {{    1.1    | float | abs }}
+float         (  1.9  )        : {{    1.9    | float | abs }}
+float         (  2.1  )        : {{    2.1    | float | abs }}
+float         ( -1.1  )        : {{   -1.1    | float | abs }}
+float         ( -1.9  )        : {{   -1.9    | float | abs }}
+float         ( -2.1  )        : {{   -2.1    | float | abs }}
+float         ( "1.1" )        : {{   "1.1"   | float | abs }}
+float         ( "1.9" )        : {{   "1.9"   | float | abs }}
+float         ( "2.1" )        : {{   "2.1"   | float | abs }}
+float         ("-1.1" )        : {{  "-1.1"   | float | abs }}
+float         ("-1.9" )        : {{  "-1.9"   | float | abs }}
+float         ("-2.1" )        : {{  "-2.1"   | float | abs }}
+
+float | int   (  1.1  )        : {{    1.1    | float | int | abs }}
+float | int   (  1.9  )        : {{    1.9    | float | int | abs }}
+float | int   (  2.1  )        : {{    2.1    | float | int | abs }}
+float | int   ( -1.1  )        : {{   -1.1    | float | int | abs }}
+float | int   ( -1.9  )        : {{   -1.9    | float | int | abs }}
+float | int   ( -2.1  )        : {{   -2.1    | float | int | abs }}
+float | int   ( "1.1" )        : {{   "1.1"   | float | int | abs }}
+float | int   ( "1.9" )        : {{   "1.9"   | float | int | abs }}
+float | int   ( "2.1" )        : {{   "2.1"   | float | int | abs }}
+float | int   ("-1.1" )        : {{  "-1.1"   | float | int | abs }}
+float | int   ("-1.9" )        : {{  "-1.9"   | float | int | abs }}
+float | int   ("-2.1" )        : {{  "-2.1"   | float | int | abs }}
+

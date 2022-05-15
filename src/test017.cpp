@@ -59,7 +59,7 @@ int main( int argc, char* argv[] )
     #ifdef USE_EXACT_TEST
     
         //INIT_TEST_INPUT_FILE_EX("test017_004.txt");
-        INIT_TEST_INPUT_FILE_EX("test017_007.txt");
+        INIT_TEST_INPUT_FILE_EX("test017_008.txt");
         // jsonFile = "F:\\_github\\marty-swagger-codegen\\tests\\description.yaml";
         jsonFile = "F:\\_github\\marty-swagger-codegen\\tests\\swagger-example-tinkoff-openapi.yaml";
     
@@ -162,6 +162,11 @@ int main( int argc, char* argv[] )
     bool isOpenApiSpec           = false;
     std::string specFormat       = "unknown";
     std::vector<std::string> foundTypes;
+
+    // extern FilterPtr CreateFilter(std::string filterName, CallParamsInfo params)
+    // class NLohmannJsonObjectAccessor
+
+
 
     jinja2::ValuesMap renderParams = 
     {   { "data"         , jinja2::Reflect(&innerStruct) }

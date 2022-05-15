@@ -50,3 +50,4 @@ Node.js: документирование и визуализация API с п�
 Node.js: шаблон сервера для аутентификации и авторизации
    https://habr.com/ru/company/timeweb/blog/593063/
 
+Jinja2Cpp - всё - https://forum.sources.ru/index.php?showtopic=418493

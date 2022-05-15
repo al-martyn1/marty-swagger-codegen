@@ -1,0 +1,9 @@
+{{ "--- JSON ---" | center(32) }}
+
+json          : {{ json | tojson(2) }}
+
+
+
+{{ "--- COMPONENTS ---" | center(32) }}
+
+components    : {{ components | tojson(2) }}

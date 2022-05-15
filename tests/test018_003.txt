@@ -1,0 +1,30 @@
+{# {{ json | tojson(2) }} #}
+
+{#
+
+{{ jsonCallableGenericMap  : jsonCallableGenericMap(json) }}
+
+{{ jsonCallableGenericList : jsonCallableGenericList(json) }}
+
+{{ jsonCallableValuesMap   : jsonCallableValuesMap(json) }}
+
+{{ jsonCallableGenericList : jsonCallableGenericList(json) }}
+
+#}
+
+{% set simpleCallableRes = simpleCallable(json) %}
+simpleCallableRes     : {{ simpleCallableRes | pprint }}
+simpleCallable(1)     : {{ simpleCallable(json)  | pprint }}
+simpleCallable(2)     : {{ simpleCallable()  | pprint }}
+simpleCallable()3     : {{ simpleCallable('aaa')  | pprint }}
+
+test                  : {{ test('s1', 's2') }}
+
+nlohmannJson          : {{ nlohmannJson(json) }}
+
+j                     : {{ j(json) | tojson(2) }}
+
+
+{% set lstStr = 'name1/name2' %}
+{% set lst = listStr.split('/') %}
+{{ lst | pprint }}

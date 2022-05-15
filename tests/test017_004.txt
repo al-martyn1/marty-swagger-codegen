@@ -5,13 +5,13 @@
         "array": [1, 2, 3, 4, 5]
     }
 }{% endmeta %}
-
+{#- -#}
 hasJson                          : {{ hasJson }}
 isOpenApiSpec                    : {{ isOpenApiSpec }}
 specFormat                       : {{ specFormat }}
 specTypes (1){% for typeSpec in specTypes %}
-    specTypes.item: {{ typeSpec | tojson }}
-        {#{ json.components.schemas[typeSpec] | tojson }#}
+    specTypes.item: {{ typeSpec | tojson }}{# -#}
+        {#{ json.components.schemas[typeSpec] | tojson } -#}
     {% endfor %}
 
 {# specTypes (2)                    : {{ specTypes | tojson }} #}

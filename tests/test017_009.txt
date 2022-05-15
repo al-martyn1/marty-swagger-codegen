@@ -1,57 +1,29 @@
-{#
-        ToListMode,
-        AbsMode,
-        RoundMode,
-#}
-list          (  1.1  )        : {{    1.1    | list  }}
-float         (  1.9  )        : {{    1.9    | float }}
-float         (  2.1  )        : {{    2.1    | float }}
-float         ( -1.1  )        : {{   -1.1    | float }}
-float         ( -1.9  )        : {{   -1.9    | float }}
-float         ( -2.1  )        : {{   -2.1    | float }}
-list          ( "1.1" )        : {{   "1.1"   | list }}
-float         ( "1.9" )        : {{   "1.9"   | float }}
-float         ( "2.1" )        : {{   "2.1"   | float }}
-float         ("-1.1" )        : {{  "-1.1"   | float }}
-float         ("-1.9" )        : {{  "-1.9"   | float }}
-float         ("-2.1" )        : {{  "-2.1"   | float }}
+{# Ignore linefeed by '-' at end of tag -#}
+{# Link: https://stackoverflow.com/questions/45719062/jinja-docx-template-avoiding-new-line-in-nested-for #}
+{#-Link: https://jinja.palletsprojects.com/en/3.1.x/templates/#whitespace-control -#}
+{# Link: https://ttl255.com/jinja2-tutorial-part-3-whitespace-control/ -#}
+{% set components = json.components.schemas %}
+{#- #}
+{%- set testListInt = [ 10, 11, 22 ] %}
+{%- set testListStr = [ 's1', 's2', 's3' ] %}
+{#- -#}
+{# -#}
+{# -#}
+testListInt: {{ testListInt | pprint }}
+testListStr: {{ testListStr | pprint }}
 
-int           (  1.1  )        : {{    1.1    | int }}
-int           (  1.9  )        : {{    1.9    | int }}
-int           (  2.1  )        : {{    2.1    | int }}
-int           ( -1.1  )        : {{   -1.1    | int }}
-int           ( -1.9  )        : {{   -1.9    | int }}
-int           ( -2.1  )        : {{   -2.1    | int }}
-int           ( "1.1" )        : {{   "1.1"   | int }}
-int           ( "1.9" )        : {{   "1.9"   | int }}
-int           ( "2.1" )        : {{   "2.1"   | int }}
-int           ("-1.1" )        : {{  "-1.1"   | int }}
-int           ("-1.9" )        : {{  "-1.9"   | int }}
-int           ("-2.1" )        : {{  "-2.1"   | int }}
+testListInt size: {{ testListInt | length }}
+testListStr size: {{ testListStr | length }}
 
-int | float   (  1.1  )        : {{    1.1    | int | float }}
-int | float   (  1.9  )        : {{    1.9    | int | float }}
-int | float   (  2.1  )        : {{    2.1    | int | float }}
-int | float   ( -1.1  )        : {{   -1.1    | int | float }}
-int | float   ( -1.9  )        : {{   -1.9    | int | float }}
-int | float   ( -2.1  )        : {{   -2.1    | int | float }}
-int | float   ( "1.1" )        : {{   "1.1"   | int | float }}
-int | float   ( "1.9" )        : {{   "1.9"   | int | float }}
-int | float   ( "2.1" )        : {{   "2.1"   | int | float }}
-int | float   ("-1.1" )        : {{  "-1.1"   | int | float }}
-int | float   ("-1.9" )        : {{  "-1.9"   | int | float }}
-int | float   ("-2.1" )        : {{  "-2.1"   | int | float }}
+specTypes size  : {{ specTypes | length }}
 
-float | int   (  1.1  )        : {{    1.1    | float | int }}
-float | int   (  1.9  )        : {{    1.9    | float | int }}
-float | int   (  2.1  )        : {{    2.1    | float | int }}
-float | int   ( -1.1  )        : {{   -1.1    | float | int }}
-float | int   ( -1.9  )        : {{   -1.9    | float | int }}
-float | int   ( -2.1  )        : {{   -2.1    | float | int }}
-float | int   ( "1.1" )        : {{   "1.1"   | float | int }}
-float | int   ( "1.9" )        : {{   "1.9"   | float | int }}
-float | int   ( "2.1" )        : {{   "2.1"   | float | int }}
-float | int   ("-1.1" )        : {{  "-1.1"   | float | int }}
-float | int   ("-1.9" )        : {{  "-1.9"   | float | int }}
-float | int   ("-2.1" )        : {{  "-2.1"   | float | int }}
+
+specTypes (1){% for typeSpecName in specTypes %}{% set typeSpec = components[typeSpecName] %}
+    specTypes.item : {{ typeSpecName }}
+        item idx   : {{ loop.index0 }} of {{ loop.length }} total
+        component json: {{ typeSpec | tojson }}
+        enum len   : {{ typeSpec['enum'] | length }}
+        enum int   : {{ typeSpec['enum'] | float | int }}
+        {% if true %}{{ ' -stmt- ' }}{% endif %}
+    {% endfor %}
 
