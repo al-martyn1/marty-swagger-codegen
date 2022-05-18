@@ -41,7 +41,6 @@
 #include "jinja2cpp_test_data.h"
 
 
-
  
 using namespace std;
 
@@ -188,23 +187,6 @@ int main( int argc, char* argv[] )
                                 , jinja2::ArgInfo{"str1"}, jinja2::ArgInfo{"str2", false, "default"}
                                 )
           }
-        // , { "nlohmannJson",
-        //     jinja2::MakeCallable( [](const jinja2::detail::NLohmannJsonObjectAccessor& j)
-        //                           {
-        //                               return "j";
-        //                           }
-        //                         , jinja2::ArgInfo{"j"}
-        //                         )
-        //   }
-
-        // , { "nlohmannJsonA",
-        //     jinja2::MakeCallable( [](const jinja2::detail::NLohmannJsonArrayAccessor& j)
-        //                           {
-        //                               return "j";
-        //                           }
-        //                         , jinja2::ArgInfo{"j"}
-        //                         )
-        //   }
 
         #ifdef USE_EXACT_TEST
         , { "ints"         , jinja2::Reflect(&ints) }
@@ -212,41 +194,6 @@ int main( int argc, char* argv[] )
         #endif
     };
 
-
-    // s_filters["test_filter"] = jinja2::FilterFactory<jinja2::filters::ValueConverter>::MakeCreator(jinja2::filters::ValueConverter::AbsMode) },
-    // s_filters["test_filter"] = FilterFactory<SimpleFilter>::MakeCreator();
-
-
-    // params["test2"] = MakeCallable(
-    //     [](const GenericList& list) {
-    //         std::ostringstream os;
-    //  
-    //         for(auto& v : list)
-    //             os << AsString(v);
-    //  
-    //         return os.str();
-    //     },
-    //     ArgInfo{"list"}
-    // );
-
-      // MakeCallable([](auto& urlLink, auto& labelName, auto limitWord, auto& targetStr) { return UrlProcessorGlobal(urlLink, labelName, limitWord, targetStr); },
-      //              jinja2::ArgInfoT<const std::string&>{ "urlLink" },
-      //              jinja2::ArgInfoT<const std::string&>{ "labelName" },
-      //              jinja2::ArgInfoT<int>{ "limitWord", false, 0 },
-      //              jinja2::ArgInfoT<const std::string&>{ "targetStr", false, "" });
-
-    // params["GMapFn"] = MakeCallable([](const GenericMap& val) {return val;}, ArgInfo{"val"});
-
-    // params["VarKwArgsFn"] = MakeCallable([](const ValuesMap& val) {
-    //     return val;
-    // }, ArgInfo{"**kwargs"});
-    // params["ContextArgFn"] =
-    //   MakeCallable([](const GenericMap& val, const std::string& varName) { return val.GetValueByName(varName); }, ArgInfo{ "*context" }, ArgInfo{ "name" });
-
-    // class NLohmannJsonObjectAccessor : public IMapItemAccessor, public ReflectedDataHolder<nlohmann::json>
-
-
-    //extern FilterPtr jinja2::CreateFilter(std::string filterName, CallParamsInfo params);
 
 
     std::vector<std::string> componentTypes;

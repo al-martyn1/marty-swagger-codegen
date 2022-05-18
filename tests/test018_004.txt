@@ -1,3 +1,45 @@
+/* \file
+   \brief Automatically generated file
+
+ */
+
+
+#include <string>
+#include <exception>
+#include <stdexcept>
+#include <typeinfo>
+#include <variant>
+#include <optional>
+
+#include "nlohmann/json.hpp"
+
+
+/*
+#define
+struct ArrayText
+{
+    std::string value;
+
+    ArrayText() : value() {}
+    ArrayText( const ArrayText &a) : value(a.value) {}
+    ArrayText& operator=( const ArrayText &a) { value = a.value; return *this; }
+    ArrayText(const std::string &s) : value(s) {}
+    operator std::string() const { return value; }
+};
+
+struct ObjectText
+{
+    std::string value;
+
+    ObjectText() : value() {}
+    ObjectText( const ObjectText &a) : value(a.value) {}
+    ObjectText& operator=( const ObjectText &a) { value = a.value; return *this; }
+    ObjectText(const std::string &s) : value(s) {}
+    operator std::string() const { return value; }
+};
+*/
+
+
 {% set enumNameStyle ='pascal' -%}
 {% set enumValueStyle='camel'  -%}
 {% set namespace = 'test/swagger::TinkoffOpenAPI'  -%}
@@ -10,6 +52,19 @@
 {% for ns in namespaceList %}
 namespace {{ns}} {
 {%- endfor -%}
+
+
+template < typename T >
+using Opt = std::optional<T>;
+
+
+namespace util{
+
+// 1) 
+
+
+} // namespace util
+
 
 
 {# -#}
