@@ -34,6 +34,12 @@
 #include "jinja2cpp_test_data.h"
 
 
+
+// 6.13 – Безымянные и встраиваемые пространства имен - https://radioprog.ru/post/1136
+// inline namespace
+
+
+
 enum class E1
 {
     unknown = 0

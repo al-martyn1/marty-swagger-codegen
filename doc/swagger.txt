@@ -1,0 +1,8 @@
+Data Types - https://swagger.io/docs/specification/data-models/data-types/
+    Non-std
+      type: string
+      format: 'date-time'
+      description: "ISO8601"
+
+    У тинькова в стриминге (по вебсокетам) ещё использовался RFC3339,
+    но стриминг АПИ в сваггере не описан

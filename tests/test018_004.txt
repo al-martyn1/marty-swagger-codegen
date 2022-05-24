@@ -13,57 +13,78 @@
 
 #include "nlohmann/json.hpp"
 
+#include "json_serializer_utils.h"
 
-/*
-#define
-struct ArrayText
-{
-    std::string value;
 
-    ArrayText() : value() {}
-    ArrayText( const ArrayText &a) : value(a.value) {}
-    ArrayText& operator=( const ArrayText &a) { value = a.value; return *this; }
-    ArrayText(const std::string &s) : value(s) {}
-    operator std::string() const { return value; }
-};
+{#
 
-struct ObjectText
-{
-    std::string value;
+https://swagger.io/docs/specification/data-models/data-types/
 
-    ObjectText() : value() {}
-    ObjectText( const ObjectText &a) : value(a.value) {}
-    ObjectText& operator=( const ObjectText &a) { value = a.value; return *this; }
-    ObjectText(const std::string &s) : value(s) {}
-    operator std::string() const { return value; }
-};
-*/
+type: string
+
+type: integer
+
+type: integer
+format: int32
+
+type: string
+format: 'date-time'
+description: "ISO8601"
+
+type: object
+
+type: array
+
+type: number
+format: double
+
+#}
 
 
 {% set enumNameStyle ='pascal' -%}
-{% set enumValueStyle='camel'  -%}
+{#% set enumValueStyle='camel'  -%#}
+{% set enumValueStyle='define'  -%}
+{% set enumValueFmtWidth=16  -%}
 {% set namespace = 'test/swagger::TinkoffOpenAPI'  -%}
 {# -#}
 {% set namespace = namespace|replace(old='::',new='/') -%}
 {% set namespace = namespace|replace(old='\\',new='/') -%}
 {% set namespaceList = namespace|split('/') -%}
 
-// namespace (full): {{ namespace}}
-{% for ns in namespaceList %}
+{% macro ns_begin() -%}
+{#% for ns in namespaceList %}
 namespace {{ns}} {
-{%- endfor -%}
+{%- endfor -% -#}
+{% for ns in namespaceList %}namespace {{ns}} { {% endfor -%}
+{%- endmacro -%}
 
+{% macro ns_end() -%}
+{# % for ns in namespaceList | reverse %}
+} // namespace {{ns}}{% endfor -%} -#}
+{% for ns in namespaceList | reverse -%}
+} /* namespace {{ns}}*/ {% endfor -%}
+{%- endmacro -%}
+
+
+{%- macro marty_json_util_begin() -%}
+namespace marty { namespace json { namespace util {
+{%- endmacro -%}
+
+{%- macro marty_json_util_end() -%}
+} } }
+{%- endmacro -%}
+
+
+
+
+
+{{ ns_begin() }}
 
 template < typename T >
 using Opt = std::optional<T>;
 
+{{ ns_end() }}
 
-namespace util{
-
-// 1) 
-
-
-} // namespace util
 
 
 
@@ -74,17 +95,46 @@ namespace util{
 // TypeName: {{ ComponentTypeName }}
 // {{ TypeSpec | tojson }}
 {% if TypeSpec['enum'] %}
+{{ ns_begin() }}
+
 enum class {{ ComponentTypeName | ident(enumNameStyle) }}
-{   invalid = 0
+{   {{'invalid' | ident(enumValueStyle) | left(enumValueFmtWidth) }} = 0
 {% for enumItem in TypeSpec['enum'] -%}
-  , {{ enumItem | ident(enumValueStyle) }} = {{ loop.index }}
+  , {{ enumItem | ident(enumValueStyle) | left(enumValueFmtWidth) }} = {{ loop.index }}
 {% endfor -%}
 };
+
+inline
+void to_json( nlohmann::json& jNode, const {{ ComponentTypeName | ident(enumNameStyle) }}& val )
+{
+    switch(val)
+    {
+{% for enumItem in TypeSpec['enum'] -%}
+        case {{ ComponentTypeName | ident(enumNameStyle) }} :: {{ enumItem | ident(enumValueStyle) | left(enumValueFmtWidth) }} : jNode = nlohmann::json("{{enumItem}}"); return;
+{% endfor -%}
+        default: /* do nothing */ do {} while(false);
+    }
+}
+
+inline
+void from_json( const nlohmann::json& jNode, {{ ComponentTypeName | ident(enumNameStyle) }}& val )
+{
+}
+
+{{ ns_end() }}
+
+{#- {{ marty_json_util_begin() }}
+{{ marty_json_util_end() }} -#}
+
+
 {% endif %}{# if TypeSpec['enum'] #}
 
 {% endfor %}{# for ComponentTypeName in ComponentTypes #}
 
 
-{% for ns in namespaceList | reverse %}
+{# {% for ns in namespaceList | reverse %}
 } // namespace {{ns}}{% endfor -%}
+#}
+
+
 

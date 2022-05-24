@@ -36,3 +36,6 @@
 /tests/APIs_log
 /tests/*.log
 /_prj_msvc/*.user
+/src/*dsl.txt
+/src/dsl*.txt
+/doc/custom-dsl.txt

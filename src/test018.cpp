@@ -225,6 +225,7 @@ int main( int argc, char* argv[] )
                             , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/x-waiters^", true ) ) // use anchors
                             , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/x-aws-exception^", true ) ) // use anchors
                             , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/xml/wrapped^", true ) ) // use anchors
+                            , std::regex(umba::regex_helpers::expandSimpleMaskToEcmaRegex( "^/*/description^", true ) ) // use anchors
                             // /info/x-unofficialSpec
                             };
        

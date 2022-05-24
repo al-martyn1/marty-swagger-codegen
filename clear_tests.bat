@@ -10,6 +10,7 @@ tests\*.dif      ^
 tests\*.h        ^
 tests\*.json.dif ^
 tests\*.yaml.dif ^
-tests\*.dif.log tests\*_dif.log tests\*-dif.log
+tests\*.dif.log tests\*_dif.log tests\*-dif.log ^
+tests\*.exe tests\*.obj
 
 rd /S /Q tests\APIs_log
